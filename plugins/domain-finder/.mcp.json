@@ -1,0 +1,9 @@
+{
+  "domain-finder": {
+    "command": "node",
+    "args": ["${CLAUDE_PLUGIN_ROOT}/mcp-server/index.js"],
+    "env": {
+      "DOMAIN_FINDER_API_URL": "https://domain-finder-api.j-coulaud.workers.dev"
+    }
+  }
+}

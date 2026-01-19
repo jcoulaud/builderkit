@@ -1,0 +1,11 @@
+{
+  "name": "domain-finder",
+  "description": "Check domain name availability using RDAP. Brainstorm domain ideas and instantly verify if they're available for registration.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Julien"
+  },
+  "repository": "https://github.com/jcoulaud/builderkit",
+  "license": "MIT",
+  "keywords": ["domain", "rdap", "whois", "availability", "brainstorm"]
+}

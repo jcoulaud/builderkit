@@ -1,0 +1,25 @@
+{
+  "name": "builderkit",
+  "owner": {
+    "name": "Julien Coulaud",
+    "email": ""
+  },
+  "metadata": {
+    "description": "Claude Code plugins marketplace for builders",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "domain-finder",
+      "source": "domain-finder",
+      "description": "Check domain name availability using RDAP. Brainstorm domain ideas and instantly verify if they're available.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Julien"
+      },
+      "license": "MIT",
+      "keywords": ["domain", "rdap", "whois", "availability", "brainstorm"]
+    }
+  ]
+}

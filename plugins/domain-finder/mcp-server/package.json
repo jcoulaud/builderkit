@@ -1,0 +1,14 @@
+{
+  "name": "domain-finder-mcp",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "domain-finder-mcp": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}
