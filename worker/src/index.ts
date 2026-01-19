@@ -39,6 +39,22 @@ const BOOTSTRAP_CACHE_TTL = 86400; // 24 hours
 // Cloudflare DNS over HTTPS endpoint
 const DOH_URL = 'https://cloudflare-dns.com/dns-query';
 
+// Request timeout in milliseconds
+const FETCH_TIMEOUT = 10000;
+
+// Fetch with timeout using AbortController
+async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 // WHOIS servers for common TLDs without RDAP
 const WHOIS_SERVERS: Record<string, string> = {
   'io': 'whois.nic.io',
@@ -116,11 +132,9 @@ function getTld(domain: string): string {
 async function checkDomainDns(domain: string): Promise<DomainResult> {
   try {
     // Check for NS records first (most reliable for registration)
-    const nsResponse = await fetch(
+    const nsResponse = await fetchWithTimeout(
       `${DOH_URL}?name=${encodeURIComponent(domain)}&type=NS`,
-      {
-        headers: { 'Accept': 'application/dns-json' }
-      }
+      { headers: { 'Accept': 'application/dns-json' } }
     );
 
     if (nsResponse.ok) {
@@ -146,11 +160,9 @@ async function checkDomainDns(domain: string): Promise<DomainResult> {
     }
 
     // Also check A records as backup
-    const aResponse = await fetch(
+    const aResponse = await fetchWithTimeout(
       `${DOH_URL}?name=${encodeURIComponent(domain)}&type=A`,
-      {
-        headers: { 'Accept': 'application/dns-json' }
-      }
+      { headers: { 'Accept': 'application/dns-json' } }
     );
 
     if (aResponse.ok) {
@@ -200,10 +212,8 @@ async function checkDomainWhois(domain: string): Promise<DomainResult> {
     // Use whois.com API (free for basic lookups)
     const whoisUrl = `https://www.whois.com/whois/${encodeURIComponent(domain)}`;
 
-    const response = await fetch(whoisUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; DomainFinder/1.0)'
-      }
+    const response = await fetchWithTimeout(whoisUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; DomainFinder/1.0)' }
     });
 
     if (response.ok) {
@@ -293,10 +303,8 @@ async function checkDomainRdap(
   const rdapUrl = `${baseUrl}domain/${domain.toLowerCase()}`;
 
   try {
-    const response = await fetch(rdapUrl, {
-      headers: {
-        'Accept': 'application/rdap+json, application/json'
-      }
+    const response = await fetchWithTimeout(rdapUrl, {
+      headers: { 'Accept': 'application/rdap+json, application/json' }
     });
 
     if (response.status === 404) {
@@ -428,7 +436,7 @@ export default {
           bootstrap = JSON.parse(cached);
           cachedBootstrap = true;
         } else {
-          const bootstrapResponse = await fetch(IANA_BOOTSTRAP_URL);
+          const bootstrapResponse = await fetchWithTimeout(IANA_BOOTSTRAP_URL);
           bootstrap = await bootstrapResponse.json();
 
           await env.RDAP_CACHE?.put(
