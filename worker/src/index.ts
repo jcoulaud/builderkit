@@ -212,8 +212,6 @@ async function checkDomainDns(domain: string): Promise<DomainResult> {
 
 // Check domain via WHOIS (using web-based WHOIS services)
 async function checkDomainWhois(domain: string): Promise<DomainResult> {
-  const tld = getTld(domain);
-
   try {
     // Use whois.com API (free for basic lookups)
     const whoisUrl = `https://www.whois.com/whois/${encodeURIComponent(domain)}`;
