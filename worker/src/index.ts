@@ -153,41 +153,41 @@ function getTld(domain: string): string {
 // Check domain via DNS (Cloudflare DoH)
 async function checkDomainDns(domain: string): Promise<DomainResult> {
   try {
-    // Check for NS records first (most reliable for registration)
-    const nsResponse = await fetchWithTimeout(
-      `${DOH_URL}?name=${encodeURIComponent(domain)}&type=NS`,
-      { headers: { 'Accept': 'application/dns-json' } }
-    );
+    // Fetch NS and A records in parallel for faster lookups
+    const [nsResponse, aResponse] = await Promise.all([
+      fetchWithTimeout(
+        `${DOH_URL}?name=${encodeURIComponent(domain)}&type=NS`,
+        { headers: { 'Accept': 'application/dns-json' } }
+      ),
+      fetchWithTimeout(
+        `${DOH_URL}?name=${encodeURIComponent(domain)}&type=A`,
+        { headers: { 'Accept': 'application/dns-json' } }
+      )
+    ]);
 
-    if (nsResponse.ok) {
-      const nsData: DnsResponse = await nsResponse.json();
+    // Parse responses
+    const nsData: DnsResponse | null = nsResponse.ok ? await nsResponse.json() : null;
+    const aData: DnsResponse | null = aResponse.ok ? await aResponse.json() : null;
 
-      // Status 0 = NOERROR (domain exists)
-      // Status 3 = NXDOMAIN (domain doesn't exist = available)
+    // Status 0 = NOERROR (domain exists)
+    // Status 3 = NXDOMAIN (domain doesn't exist = available)
+
+    // Check NS records first (most reliable for registration)
+    if (nsData) {
       if (nsData.Status === 3) {
         return { domain, available: true, method: 'dns' };
       }
-
       if (nsData.Status === 0 && nsData.Answer && nsData.Answer.length > 0) {
         return { domain, available: false, method: 'dns' };
       }
     }
 
-    // Also check A records as backup
-    const aResponse = await fetchWithTimeout(
-      `${DOH_URL}?name=${encodeURIComponent(domain)}&type=A`,
-      { headers: { 'Accept': 'application/dns-json' } }
-    );
-
-    if (aResponse.ok) {
-      const aData: DnsResponse = await aResponse.json();
-
+    // Check A records as backup
+    if (aData) {
       if (aData.Status === 3) {
         return { domain, available: true, method: 'dns' };
       }
-
       if (aData.Status === 0) {
-        // Domain exists (even without A records, NOERROR means it's registered)
         return { domain, available: false, method: 'dns' };
       }
     }
