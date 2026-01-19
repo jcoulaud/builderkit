@@ -31,6 +31,41 @@ interface CheckDomainsResponse {
   cached_bootstrap: boolean;
 }
 
+// IANA RDAP Bootstrap response
+interface IanaBootstrap {
+  version: string;
+  services: [string[], string[]][];
+}
+
+// Cloudflare DNS-over-HTTPS response
+interface DnsResponse {
+  Status: number; // 0 = NOERROR, 3 = NXDOMAIN
+  Answer?: { name: string; type: number; TTL: number; data: string }[];
+}
+
+// RDAP domain response
+interface RdapResponse {
+  objectClassName?: string;
+  handle?: string;
+  ldhName?: string;
+  entities?: RdapEntity[];
+  events?: RdapEvent[];
+}
+
+interface RdapEntity {
+  objectClassName?: string;
+  handle?: string;
+  roles?: string[];
+  vcardArray?: [string, VCardProperty[]];
+}
+
+type VCardProperty = [string, Record<string, string>, string, string];
+
+interface RdapEvent {
+  eventAction: string;
+  eventDate: string;
+}
+
 // IANA RDAP Bootstrap URL
 const IANA_BOOTSTRAP_URL = 'https://data.iana.org/rdap/dns.json';
 const BOOTSTRAP_CACHE_KEY = 'iana-rdap-bootstrap';
@@ -94,17 +129,14 @@ function validateDomain(input: string): ValidationResult {
 }
 
 // Parse the IANA bootstrap file to get TLD -> RDAP server mapping
-function parseBootstrap(bootstrap: any): Map<string, string> {
+function parseBootstrap(bootstrap: IanaBootstrap): Map<string, string> {
   const tldToServer = new Map<string, string>();
 
-  if (bootstrap?.services) {
-    for (const service of bootstrap.services) {
-      const [tlds, urls] = service;
-      if (urls && urls.length > 0) {
-        const rdapUrl = urls[0];
-        for (const tld of tlds) {
-          tldToServer.set(tld.toLowerCase(), rdapUrl);
-        }
+  for (const [tlds, urls] of bootstrap.services) {
+    if (urls.length > 0) {
+      const rdapUrl = urls[0];
+      for (const tld of tlds) {
+        tldToServer.set(tld.toLowerCase(), rdapUrl);
       }
     }
   }
@@ -128,24 +160,16 @@ async function checkDomainDns(domain: string): Promise<DomainResult> {
     );
 
     if (nsResponse.ok) {
-      const nsData = await nsResponse.json() as any;
+      const nsData: DnsResponse = await nsResponse.json();
 
       // Status 0 = NOERROR (domain exists)
       // Status 3 = NXDOMAIN (domain doesn't exist = available)
       if (nsData.Status === 3) {
-        return {
-          domain,
-          available: true,
-          method: 'dns'
-        };
+        return { domain, available: true, method: 'dns' };
       }
 
       if (nsData.Status === 0 && nsData.Answer && nsData.Answer.length > 0) {
-        return {
-          domain,
-          available: false,
-          method: 'dns'
-        };
+        return { domain, available: false, method: 'dns' };
       }
     }
 
@@ -156,23 +180,15 @@ async function checkDomainDns(domain: string): Promise<DomainResult> {
     );
 
     if (aResponse.ok) {
-      const aData = await aResponse.json() as any;
+      const aData: DnsResponse = await aResponse.json();
 
       if (aData.Status === 3) {
-        return {
-          domain,
-          available: true,
-          method: 'dns'
-        };
+        return { domain, available: true, method: 'dns' };
       }
 
       if (aData.Status === 0) {
         // Domain exists (even without A records, NOERROR means it's registered)
-        return {
-          domain,
-          available: false,
-          method: 'dns'
-        };
+        return { domain, available: false, method: 'dns' };
       }
     }
 
@@ -306,7 +322,7 @@ async function checkDomainRdap(
     }
 
     if (response.ok) {
-      const data = await response.json() as any;
+      const data: RdapResponse = await response.json();
 
       let registrar: string | undefined;
       let expires: string | undefined;
@@ -314,7 +330,7 @@ async function checkDomainRdap(
       if (data.entities) {
         for (const entity of data.entities) {
           if (entity.roles?.includes('registrar')) {
-            registrar = entity.vcardArray?.[1]?.find((v: any) => v[0] === 'fn')?.[3]
+            registrar = entity.vcardArray?.[1]?.find((v) => v[0] === 'fn')?.[3]
               || entity.handle
               || 'Unknown';
             break;
@@ -323,19 +339,13 @@ async function checkDomainRdap(
       }
 
       if (data.events) {
-        const expirationEvent = data.events.find((e: any) => e.eventAction === 'expiration');
+        const expirationEvent = data.events.find((e) => e.eventAction === 'expiration');
         if (expirationEvent?.eventDate) {
           expires = expirationEvent.eventDate.split('T')[0];
         }
       }
 
-      return {
-        domain,
-        available: false,
-        method: 'rdap',
-        registrar,
-        expires
-      };
+      return { domain, available: false, method: 'rdap', registrar, expires };
     }
 
     return null; // RDAP failed, try fallback
@@ -418,7 +428,7 @@ export default {
         }
 
         // Get bootstrap file (cached)
-        let bootstrap: any;
+        let bootstrap: IanaBootstrap;
         let cachedBootstrap = false;
 
         const cached = await env.RDAP_CACHE?.get(BOOTSTRAP_CACHE_KEY);
