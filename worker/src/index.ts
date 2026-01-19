@@ -55,16 +55,6 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise
   }
 }
 
-// WHOIS servers for common TLDs without RDAP
-const WHOIS_SERVERS: Record<string, string> = {
-  'io': 'whois.nic.io',
-  'co': 'whois.nic.co',
-  'me': 'whois.nic.me',
-  'tv': 'whois.nic.tv',
-  'cc': 'whois.nic.cc',
-  'so': 'whois.nic.so',
-};
-
 interface ValidationResult {
   valid: boolean;
   error?: string;
