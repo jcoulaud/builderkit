@@ -6,8 +6,5 @@
   "scripts": {
     "start": "node index.js"
   },
-  "license": "MIT",
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0"
-  }
+  "license": "MIT"
 }
