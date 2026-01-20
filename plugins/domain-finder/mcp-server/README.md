@@ -46,12 +46,9 @@ Claude will check availability automatically.
 
 ## Tools
 
-This server provides two tools:
-
-| Tool | Description | Limit |
-|------|-------------|-------|
-| `check_domains` | Check multiple domains at once | Up to 50 domains |
-| `check_single_domain` | Check a single domain | 1 domain |
+| Tool | Description |
+|------|-------------|
+| `check_domain_availability` | Check if domains are available (up to 50 at once) |
 
 ### Response format
 
