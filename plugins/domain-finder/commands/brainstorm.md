@@ -6,6 +6,111 @@ Brainstorm creative domain names for: "$ARGUMENTS"
 
 ---
 
+## CRITICAL FORMAT RULES - READ FIRST
+
+<format_rules>
+You MUST follow these format rules. Violations are not acceptable.
+
+NEVER USE TABLES. This means:
+- NO pipe characters (|) for columns
+- NO markdown table syntax
+- NO horizontal alignment patterns
+- NO column headers with dashes (|---|---|)
+
+ALWAYS USE this exact structure:
+- Numbered lists (1. 2. 3.) grouped by TLD type
+- Each domain on its own line with checkmark prefix
+- Each domain followed by **Why:** explanation
+
+REQUIRED ENDING:
+- Section titled "## Top Recommendations" with trophy emoji
+- Three picks: Top Pick, Runner-up, Budget Pick with medal emojis
+- Final line asking about different naming direction
+</format_rules>
+
+---
+
+## WRONG FORMAT - DO NOT USE
+
+<wrong_format>
+NEVER output anything like this:
+
+| Domain | Notes |
+|--------|-------|
+| example.com | Short and memorable |
+| another.io | Tech-friendly |
+
+My favorites:
+- example.com - best overall
+- another.io - runner up
+
+This format is WRONG because:
+1. Uses table with pipe characters
+2. Groups by theme instead of TLD
+3. Says "My favorites" instead of "Top Recommendations"
+4. Missing trophy/medal emojis
+5. Missing **Why:** explanations
+</wrong_format>
+
+---
+
+## CORRECT FORMAT - USE THIS EXACTLY
+
+<correct_format>
+## Available Domains
+
+### .com (Premium)
+
+1. `example.com`
+   **Why:** Brief reason this name works
+
+2. `another.com`
+   **Why:** Brief reason this name works
+
+### .io / .co (Startup-friendly)
+
+3. `startup.io`
+   **Why:** Brief reason this name works
+
+4. `venture.co`
+   **Why:** Brief reason this name works
+
+### .dev / .app / .ai (Tech-specific)
+
+5. `builder.dev`
+   **Why:** Brief reason this name works
+
+6. `neural.ai`
+   **Why:** Brief reason this name works
+
+### Other TLDs
+
+7. `creative.xyz`
+   **Why:** Brief reason this name works
+
+---
+
+## Top Recommendations
+
+**Top Pick: `best.io`**
+- Reason 1
+- Reason 2
+
+**Runner-up: `second.com`**
+- Reason 1
+- Reason 2
+
+**Budget Pick: `third.xyz`**
+- Reason 1
+- Reason 2
+
+---
+
+Want me to explore a different naming direction?
+</correct_format>
+
+---
+
 ## Rules
 
 1. **USE MCP TOOL ONLY** - Use `check_domains` MCP tool. NEVER use bash, whois, dig
@@ -13,7 +118,7 @@ Brainstorm creative domain names for: "$ARGUMENTS"
 3. **SHOW ONLY 10-12** - Curate the best 10-12 in your response
 4. **MAX 3 ROUNDS** - Stop after 3 rounds of checking
 
-⚠️ If `check_domains` is unavailable, tell user to wait ~10 seconds for the MCP server to connect, then try again.
+If `check_domains` is unavailable, tell user to wait ~10 seconds for the MCP server to connect, then try again.
 
 ---
 
@@ -38,99 +143,21 @@ Skip: .online, .site, .website, .biz, .info
 If <10 available, generate more names and check again. Max 3 rounds.
 
 ### Step 5: Format Response
-Follow the EXACT FORMAT TEMPLATE below. No exceptions.
+Follow the CORRECT FORMAT shown above. Group by TLD, use numbered lists, include **Why:** for each, end with Top Recommendations section.
 
 ---
 
-## EXACT FORMAT TEMPLATE
+## Pre-Response Self-Check
 
-Copy this structure exactly. Use numbered lists and TLD groupings only.
+Before outputting, verify:
 
-```
-## ✓ Available Domains
+1. Are domains grouped by TLD type (.com first, then .io/.co, then .dev/.app/.ai, then Other)?
+2. Is every domain numbered sequentially (1, 2, 3...)?
+3. Does every domain have a **Why:** explanation on the next line?
+4. Does the response end with "## Top Recommendations" (NOT "My favorites")?
+5. Are there three picks with Top Pick, Runner-up, and Budget Pick labels?
+6. Is the final line "Want me to explore a different naming direction?"
+7. Are there ZERO pipe characters (|) in the entire response?
+8. Are there ZERO table structures anywhere?
 
-### .com (Premium)
-
-1. ✓ `example.com`
-   **Why:** Brief reason this name works
-
-2. ✓ `another.com`
-   **Why:** Brief reason this name works
-
-### .io / .co (Startup-friendly)
-
-3. ✓ `example.io`
-   **Why:** Brief reason this name works
-
-4. ✓ `another.co`
-   **Why:** Brief reason this name works
-
-### .dev / .app / .ai (Tech-specific)
-
-5. ✓ `example.dev`
-   **Why:** Brief reason this name works
-
-6. ✓ `another.ai`
-   **Why:** Brief reason this name works
-
-### Other TLDs
-
-7. ✓ `example.xyz`
-   **Why:** Brief reason this name works
-
----
-
-## 🏆 Top Recommendations
-
-🏆 **Top Pick: `best.io`**
-- Reason 1
-- Reason 2
-
-🥈 **Runner-up: `second.com`**
-- Reason 1
-- Reason 2
-
-🥉 **Budget Pick: `third.xyz`**
-- Reason 1
-- Reason 2
-
----
-
-💡 Want me to explore a different naming direction?
-```
-
----
-
-## ⛔ MANDATORY PRE-RESPONSE VERIFICATION
-
-Before you write ANY output, you MUST verify your response passes ALL checks:
-
-**Structure Check:**
-- [ ] Domains grouped by TLD type (.com, .io/.co, .dev/.app/.ai, Other)
-- [ ] Each domain is numbered (1, 2, 3, etc.)
-- [ ] Each domain has ✓ prefix and backtick formatting
-- [ ] Each domain has **Why:** explanation on next line
-- [ ] Response ends with 🏆🥈🥉 Top Recommendations section
-- [ ] Closing line asks about different naming direction
-
-**Format Violation Check:**
-- [ ] Response contains ZERO pipe characters for columnar layout
-- [ ] Response contains ZERO horizontal alignment patterns
-- [ ] Domains are NOT grouped by theme or concept
-- [ ] All lists use numbers, not plain bullets
-
-If ANY check fails, STOP and rewrite your response before outputting.
-
----
-
-## ABSOLUTE FORMAT REQUIREMENTS
-
-Your output format is FIXED and NON-NEGOTIABLE:
-
-1. **Group domains by TLD type** - .com first, then .io/.co, then .dev/.app/.ai, then others
-2. **Number every domain** - Sequential numbers (1, 2, 3...) across all groups
-3. **Use the ✓ prefix** - Every domain line starts with the number, then ✓
-4. **Include Why** - Every domain has a **Why:** line explaining the choice
-5. **End with Top 3** - Always include 🏆🥈🥉 recommendations at the end
-
-The ONLY acceptable output structure is numbered lists grouped by TLD. This is the format. There is no alternative.
+If any answer is NO, rewrite before outputting.

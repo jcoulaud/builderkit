@@ -7,10 +7,22 @@ description: Generates creative domain name ideas and checks availability across
 
 ## When to Activate
 
-- User asks for domain name suggestions
-- User is brainstorming startup/project names
-- User asks "is X.com available?"
-- User mentions wanting to register a domain
+- User asks for domain name suggestions or ideas
+- User asks "is X.com available?" or similar availability checks
+- User mentions wanting to register or buy a domain
+- User explicitly requests help finding an available domain for their project
+
+---
+
+<format_rules>
+CRITICAL - READ BEFORE RESPONDING:
+
+1. OUTPUT = Numbered list grouped by TLD type
+2. NEVER use tables, pipes, or columns
+3. Group order: .com > .io/.co > .dev/.app/.ai > Other TLDs
+4. Every domain gets a **Why:** explanation on the next line
+5. End with Top 3 recommendations (Top Pick, Runner-up, Budget Pick)
+</format_rules>
 
 ---
 
@@ -21,7 +33,7 @@ description: Generates creative domain name ideas and checks availability across
 3. **SHOW ONLY 10-12** - Curate the best 10-12 in your response
 4. **MAX 3 ROUNDS** - Stop after 3 rounds of checking
 
-⚠️ If `check_domains` is unavailable, tell user to restart Claude Code.
+If `check_domains` is unavailable, tell the user to wait a moment and try again.
 
 ---
 
@@ -46,99 +58,96 @@ Skip: .online, .site, .website, .biz, .info
 If <10 available, generate more names and check again. Max 3 rounds.
 
 ### Step 5: Format Response
-Follow the EXACT FORMAT TEMPLATE below. No exceptions.
+Follow the CORRECT FORMAT below. No exceptions.
 
 ---
 
-## EXACT FORMAT TEMPLATE
+## Format Examples
 
-Copy this structure exactly. Use numbered lists and TLD groupings only.
+<wrong_format>
+DO NOT OUTPUT THIS - Tables are forbidden:
 
-```
-## ✓ Available Domains
+| Domain | TLD | Why |
+|--------|-----|-----|
+| spark.com | .com | Short and punchy |
+| blaze.io | .io | Tech-friendly |
+| nova.dev | .dev | Developer appeal |
+
+**My favorites:**
+- spark.com - Great brand potential
+- blaze.io - Memorable and modern
+
+This is WRONG because:
+- Uses table with pipe characters
+- Ends with "My favorites" instead of Top 3 format
+- Does not group by TLD type
+- Does not use numbered list
+</wrong_format>
+
+<correct_format>
+## Available Domains
 
 ### .com (Premium)
 
-1. ✓ `example.com`
-   **Why:** Brief reason this name works
+1. `spark.com`
+   **Why:** Short, punchy, universal brand appeal
 
-2. ✓ `another.com`
-   **Why:** Brief reason this name works
+2. `nova.com`
+   **Why:** Memorable, conveys innovation
 
 ### .io / .co (Startup-friendly)
 
-3. ✓ `example.io`
-   **Why:** Brief reason this name works
+3. `blaze.io`
+   **Why:** Tech-friendly, energetic feel
 
-4. ✓ `another.co`
-   **Why:** Brief reason this name works
+4. `pulse.co`
+   **Why:** Dynamic, suggests real-time activity
 
 ### .dev / .app / .ai (Tech-specific)
 
-5. ✓ `example.dev`
-   **Why:** Brief reason this name works
+5. `stack.dev`
+   **Why:** Developer-focused, clear purpose
 
-6. ✓ `another.ai`
-   **Why:** Brief reason this name works
+6. `neural.ai`
+   **Why:** AI branding, technical credibility
 
 ### Other TLDs
 
-7. ✓ `example.xyz`
-   **Why:** Brief reason this name works
+7. `orbit.xyz`
+   **Why:** Modern, affordable alternative
 
 ---
 
-## 🏆 Top Recommendations
+## Top Recommendations
 
-🏆 **Top Pick: `best.io`**
-- Reason 1
-- Reason 2
+**Top Pick: `spark.com`**
+- Universal brand appeal
+- Easy to spell and remember
 
-🥈 **Runner-up: `second.com`**
-- Reason 1
-- Reason 2
+**Runner-up: `blaze.io`**
+- Strong tech associations
+- Available at reasonable price
 
-🥉 **Budget Pick: `third.xyz`**
-- Reason 1
-- Reason 2
-
----
-
-💡 Want me to explore a different naming direction?
-```
+**Budget Pick: `orbit.xyz`**
+- Modern feel
+- Low registration cost
 
 ---
 
-## ⛔ MANDATORY PRE-RESPONSE VERIFICATION
-
-Before you write ANY output, you MUST verify your response passes ALL checks:
-
-**Structure Check:**
-- [ ] Domains grouped by TLD type (.com, .io/.co, .dev/.app/.ai, Other)
-- [ ] Each domain is numbered (1, 2, 3, etc.)
-- [ ] Each domain has ✓ prefix and backtick formatting
-- [ ] Each domain has **Why:** explanation on next line
-- [ ] Response ends with 🏆🥈🥉 Top Recommendations section
-- [ ] Closing line asks about different naming direction
-
-**Format Violation Check:**
-- [ ] Response contains ZERO pipe characters for columnar layout
-- [ ] Response contains ZERO horizontal alignment patterns
-- [ ] Domains are NOT grouped by theme or concept
-- [ ] All lists use numbers, not plain bullets
-
-If ANY check fails, STOP and rewrite your response before outputting.
+Want me to explore a different naming direction?
+</correct_format>
 
 ---
 
-## ABSOLUTE FORMAT REQUIREMENTS
+## Pre-Response Verification
 
-Your output format is FIXED and NON-NEGOTIABLE:
+Before outputting, answer these questions. ALL must be YES:
 
-1. **Group domains by TLD type** - .com first, then .io/.co, then .dev/.app/.ai, then others
-2. **Number every domain** - Sequential numbers (1, 2, 3...) across all groups
-3. **Use the ✓ prefix** - Every domain line starts with the number, then ✓
-4. **Include Why** - Every domain has a **Why:** line explaining the choice
-5. **End with Top 3** - Always include 🏆🥈🥉 recommendations at the end
+1. Are domains grouped by TLD type (.com, then .io/.co, then .dev/.app/.ai, then Other)? YES/NO
+2. Is every domain numbered sequentially (1, 2, 3...)? YES/NO
+3. Does every domain have a **Why:** explanation on the next line? YES/NO
+4. Does the response end with Top Pick, Runner-up, and Budget Pick? YES/NO
+5. Is the response FREE of pipe characters (|) and table formatting? YES/NO
+6. Is the response FREE of "My favorites" or similar informal endings? YES/NO
 
-The ONLY acceptable output structure is numbered lists grouped by TLD. This is the format. There is no alternative.
+If ANY answer is NO, rewrite before outputting.
