@@ -6,13 +6,12 @@
   },
   "metadata": {
     "description": "Claude Code plugins for builders",
-    "version": "1.0.0",
-    "pluginRoot": "./plugins"
+    "version": "1.0.0"
   },
   "plugins": [
     {
       "name": "domain-finder",
-      "source": "domain-finder",
+      "source": "./plugins/domain-finder",
       "description": "Check domain name availability using RDAP. Brainstorm domain ideas and instantly verify if they're available.",
       "version": "1.0.0",
       "author": {
