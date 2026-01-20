@@ -2,11 +2,9 @@
 description: Brainstorm domain name ideas and check availability
 ---
 
-<!-- AUTO-GENERATED FROM SKILL.md - DO NOT EDIT MANUALLY -->
-<!-- Source: skills/domain-availability/SKILL.md -->
-<!-- Run: node scripts/generate-commands.js -->
-
 Brainstorm creative domain names for: "$ARGUMENTS"
+
+---
 
 ## Rules
 

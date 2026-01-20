@@ -1,7 +1,0 @@
-{
-  "name": "domain-finder",
-  "private": true,
-  "scripts": {
-    "generate": "node scripts/generate-commands.js"
-  }
-}
