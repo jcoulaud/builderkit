@@ -30,31 +30,31 @@ Pass all domain ideas as an array:
 }
 ```
 
-### Step 3: Output Clean Summary Table
-
-After receiving results, output a single clean table:
+### Step 3: Output Results
 
 ```
-## Domain Ideas for "[user's description]"
+**✓ Available (X)**
 
-### ✓ Available (X found)
+| Domain |
+|--------|
+| coolname.io |
+| awesome.dev |
 
-| Domain | Register |
-|--------|----------|
-| coolname.io | [Namecheap](https://namecheap.com/domains/registration/results/?domain=coolname.io) · [Porkbun](https://porkbun.com/checkout/search?q=coolname.io) |
-| awesome.dev | [Namecheap](https://namecheap.com/domains/registration/results/?domain=awesome.dev) · [Porkbun](https://porkbun.com/checkout/search?q=awesome.dev) |
+**✗ Taken (Y)**
 
-### ✗ Taken (Y found)
+| Domain | Registrar |
+|--------|-----------|
+| taken.com | GoDaddy |
 
-| Domain | Registrar | Expires |
-|--------|-----------|---------|
-| taken.com | GoDaddy | 2026-01-15 |
-| other.io | Namecheap | 2025-08-22 |
+**Top picks**
+- coolname.io
+- awesome.dev
 ```
 
-## Important
+## Rules
 
-- Make ONE tool call with all domains, not multiple calls
-- Only show the final summary table, nothing else
-- Sort available domains first (most desirable TLDs: .com, .io, .dev at top)
-- Keep it concise - no explanations, just the table
+- ONE tool call with all domains
+- Available: single column table with domain names
+- Taken: table with domain and registrar
+- Sort by TLD: .com, .io, .dev first
+- End with "Top picks" as bullet points (2-3 favorite available domains)

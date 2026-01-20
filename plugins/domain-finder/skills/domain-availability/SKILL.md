@@ -26,16 +26,21 @@ Use the `check_domains` MCP tool. Always check multiple domains in ONE call:
 
 ## Output Format
 
-Always use this clean table format:
+Use two clean tables:
 
 ```
-### Domain Availability
+**✓ Available (X)**
 
-| Domain | Status | Info |
-|--------|--------|------|
-| cool.io | ✓ Available | [Register](https://namecheap.com/domains/registration/results/?domain=cool.io) |
-| cool.com | ✗ Taken | Expires 2026-03-15 |
-| cool.dev | ✓ Available | [Register](https://namecheap.com/domains/registration/results/?domain=cool.dev) |
+| Domain |
+|--------|
+| cool.io |
+| cool.dev |
+
+**✗ Taken (Y)**
+
+| Domain | Registrar |
+|--------|-----------|
+| cool.com | GoDaddy |
 ```
 
 ## Rules
@@ -43,5 +48,4 @@ Always use this clean table format:
 1. **One API call** - batch all domains into single `check_domains` call
 2. **Table output only** - no verbose explanations
 3. **Available first** - list available domains before taken ones
-4. **Include links** - add Namecheap/Porkbun registration links for available domains
-5. **Be proactive** - if user mentions a project idea, suggest AND check domains without being asked
+4. **Be proactive** - if user mentions a project idea, suggest AND check domains without being asked

@@ -36,7 +36,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: 'check_domains',
-        description: 'Check if domain names are available for registration. Returns availability status, registrar info for taken domains, and expiration dates. Use this to verify domain availability before suggesting names to users.',
+        description: 'Check domain availability. IMPORTANT: Output is already formatted as markdown tables - display it EXACTLY as returned, do not reformat or add text.',
         inputSchema: {
           type: 'object',
           properties: {
@@ -51,7 +51,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'check_single_domain',
-        description: 'Check if a single domain name is available for registration.',
+        description: 'Check if a single domain is available. Display the output directly.',
         inputSchema: {
           type: 'object',
           properties: {
@@ -94,11 +94,50 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       const data = await response.json();
 
+      // Format results as a markdown table
+      const results = data.results || [];
+      const available = results.filter(r => r.available);
+      const taken = results.filter(r => !r.available && !r.error);
+      const errors = results.filter(r => r.error);
+
+      let output = '';
+
+      if (available.length > 0) {
+        output += `**✓ Available (${available.length})**\n\n`;
+        output += '| Domain |\n|--------|\n';
+        for (const d of available) {
+          output += `| ${d.domain} |\n`;
+        }
+        output += '\n';
+      }
+
+      if (taken.length > 0) {
+        output += `**✗ Taken (${taken.length})**\n\n`;
+        output += '| Domain | Registrar |\n|--------|----------|\n';
+        for (const d of taken) {
+          const registrar = d.registrar || 'Unknown';
+          output += `| ${d.domain} | ${registrar} |\n`;
+        }
+        output += '\n';
+      }
+
+      if (errors.length > 0) {
+        output += `**⚠ Errors (${errors.length})**\n\n`;
+        for (const d of errors) {
+          output += `- ${d.domain}: ${d.error}\n`;
+        }
+        output += '\n';
+      }
+
+      if (available.length === 0 && taken.length === 0 && errors.length === 0) {
+        output = 'No results returned from API.';
+      }
+
       return {
         content: [
           {
             type: 'text',
-            text: JSON.stringify(data, null, 2)
+            text: output
           }
         ]
       };
@@ -138,24 +177,33 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       });
 
       const data = await response.json();
-      const result = data.results?.[0] || { error: 'No result returned' };
+      const result = data.results?.[0];
+
+      if (!result) {
+        return {
+          content: [{ type: 'text', text: 'No result returned from API.' }]
+        };
+      }
+
+      let output = '';
+      if (result.error) {
+        output = `⚠ Error checking ${domain}: ${result.error}`;
+      } else if (result.available) {
+        output = `✓ **${domain}** is available`;
+      } else {
+        const registrar = result.registrar || 'Unknown';
+        output = `✗ **${domain}** is taken (${registrar})`;
+      }
 
       return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify(result, null, 2)
-          }
-        ]
+        content: [{ type: 'text', text: output }]
       };
     } catch (error) {
       return {
         content: [
           {
             type: 'text',
-            text: JSON.stringify({
-              error: `API request failed: ${error.message}`
-            })
+            text: `⚠ API request failed: ${error.message}`
           }
         ]
       };

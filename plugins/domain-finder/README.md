@@ -36,11 +36,18 @@ Claude will check availability automatically.
 
 ### Output
 
-| Domain | Status | Register |
-|--------|--------|----------|
-| fitbusy.io | ✓ Available | [Namecheap](https://namecheap.com) · [Porkbun](https://porkbun.com) |
-| quickfit.app | ✓ Available | [Namecheap](https://namecheap.com) · [Porkbun](https://porkbun.com) |
-| busyfit.com | ✗ Taken | Expires 2026-08 |
+**✓ Available**
+
+| Domain |
+|--------|
+| fitbusy.io |
+| quickfit.app |
+
+**✗ Taken**
+
+| Domain | Registrar |
+|--------|-----------|
+| busyfit.com | GoDaddy |
 
 ## Supported TLDs
 

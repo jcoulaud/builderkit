@@ -14,17 +14,11 @@ Check if "$ARGUMENTS" is available for registration.
 **If available:**
 ```
 ✓ example.com is AVAILABLE
-
-Register now:
-  → Namecheap: https://namecheap.com/domains/registration/results/?domain=example.com
-  → Porkbun: https://porkbun.com/checkout/search?q=example.com
 ```
 
 **If taken:**
 ```
-✗ example.com is TAKEN
-  Registrar: GoDaddy
-  Expires: 2026-03-15
+✗ example.com is TAKEN (Registrar: GoDaddy)
 ```
 
 **If error:**
@@ -32,4 +26,4 @@ Register now:
 ⚠ example.com - Could not check (reason)
 ```
 
-Keep the output minimal and actionable.
+Keep the output minimal.
