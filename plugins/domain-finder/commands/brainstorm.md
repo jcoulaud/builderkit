@@ -126,41 +126,67 @@ Call `check_domains` MCP tool:
 
 ### Step 5: Present Results
 
-**Only show available domains**, grouped by TLD category:
+**Only show available domains** with reasoning, grouped by TLD category.
+
+Use this exact format:
 
 ```
-## Available Domains
+## ✓ Available Domains
 
 ### Traditional (.com, .co)
-| Domain |
-|--------|
-| example.com |
 
-### Tech (.io, .dev)
-| Domain |
-|--------|
-| coolname.io |
-| builder.dev |
+1. ✓ `example.com`
+   **Why:** Premium TLD, instant credibility, easy to remember
 
-### [Category] (.xyz, .zone)
-| Domain |
-|--------|
-| project.xyz |
+2. ✓ `startup.co`
+   **Why:** Modern .com alternative, startup-friendly pricing
+
+### Tech & Developer (.io, .dev)
+
+3. ✓ `coolname.io`
+   **Why:** Short, memorable, recognized in tech community
+
+4. ✓ `builder.dev`
+   **Why:** Clear purpose, Google-backed TLD, affordable
+
+### [Category Name] (.xyz, .zone)
+
+5. ✓ `project.xyz`
+   **Why:** Budget-friendly ($2-12/yr), modern/web3 feel
 
 ---
 
-## Top Picks
+## 🏆 Top Recommendations
 
-1. **coolname.io** — Short, memorable, tech-native
-2. **example.com** — Premium TLD, maximum trust
-3. **project.xyz** — Budget-friendly, modern feel
+🏆 **Top Pick: `coolname.io`**
+- Short and punchy (9 chars)
+- .io is trusted in tech/startup space
+- Easy to say: "coolname dot I-O"
 
-💡 Want me to explore a different naming direction or check specific names?
+🥈 **Runner-up: `example.com`**
+- Premium .com for maximum trust
+- Great if targeting mainstream audience
+
+🥉 **Budget Pick: `project.xyz`**
+- Only ~$10/year renewal
+- Modern feel, popular in web3/crypto
+
+---
+
+## 📋 Next Steps
+
+1. **Register quickly** — Good domains get taken fast
+2. **Check trademarks** — Search USPTO/EUIPO before committing
+3. **Grab social handles** — Secure @username on Twitter/X, GitHub, etc.
+4. **Consider variations** — Want me to check similar names or different TLDs?
 ```
 
 ## Output Rules
 
-- **Hide taken domains** — Only show available
-- **Group by TLD category** — Separate tables per category
-- **Top 3-5 picks** — With brief reasoning for each
-- **Offer next steps** — Different direction or specific checks
+- **Hide taken domains** — Only show available with ✓ indicator
+- **Number each domain** — For easy reference
+- **Include "Why:"** — Brief reasoning for each suggestion
+- **Group by TLD category** — Clear section headers
+- **Trophy rankings** — 🏆 Top Pick, 🥈 Runner-up, 🥉 Budget Pick
+- **Actionable next steps** — Numbered list at the end
+- **Offer to continue** — Different direction or specific checks
