@@ -2,55 +2,25 @@
 description: Brainstorm domain name ideas and check availability
 ---
 
+<FORMAT_CONSTRAINT>
+OUTPUT FORMAT IS LOCKED. You cannot use tables. You cannot use pipe characters (|).
+Your output MUST be a numbered list grouped by TLD. This is non-negotiable.
+</FORMAT_CONSTRAINT>
+
 Brainstorm creative domain names for: "$ARGUMENTS"
 
----
+<FORBIDDEN_OUTPUT>
+THE FOLLOWING OUTPUT PATTERNS ARE FORBIDDEN:
 
-## CRITICAL FORMAT RULES - READ FIRST
+| Domain | Notes |          <-- FORBIDDEN: table with pipes
+|--------|-------|          <-- FORBIDDEN: table separator
+| x.com | desc |            <-- FORBIDDEN: table row
 
-<format_rules>
-You MUST follow these format rules. Violations are not acceptable.
-
-NEVER USE TABLES. This means:
-- NO pipe characters (|) for columns
-- NO markdown table syntax
-- NO horizontal alignment patterns
-- NO column headers with dashes (|---|---|)
-
-ALWAYS USE this exact structure:
-- Numbered lists (1. 2. 3.) grouped by TLD type
-- Each domain on its own line with checkmark prefix
-- Each domain followed by **Why:** explanation
-
-REQUIRED ENDING:
-- Section titled "## Top Recommendations" with trophy emoji
-- Three picks: Top Pick, Runner-up, Budget Pick with medal emojis
-- Final line asking about different naming direction
-</format_rules>
-
----
-
-## WRONG FORMAT - DO NOT USE
-
-<wrong_format>
-NEVER output anything like this:
-
-| Domain | Notes |
-|--------|-------|
-| example.com | Short and memorable |
-| another.io | Tech-friendly |
-
-My favorites:
-- example.com - best overall
-- another.io - runner up
-
-This format is WRONG because:
-1. Uses table with pipe characters
-2. Groups by theme instead of TLD
-3. Says "My favorites" instead of "Top Recommendations"
-4. Missing trophy/medal emojis
-5. Missing **Why:** explanations
-</wrong_format>
+"Best Options" header        <-- FORBIDDEN: use TLD headers instead
+"Other Available" header     <-- FORBIDDEN: use "### Other TLDs"
+"My top picks would be..."   <-- FORBIDDEN: use "## Top Recommendations"
+"My favorites:"              <-- FORBIDDEN: use structured Top 3 format
+</FORBIDDEN_OUTPUT>
 
 ---
 
@@ -147,17 +117,29 @@ Follow the CORRECT FORMAT shown above. Group by TLD, use numbered lists, include
 
 ---
 
-## Pre-Response Self-Check
+## STOP - MANDATORY CHECK BEFORE OUTPUT
 
-Before outputting, verify:
+Scan your response for these FORBIDDEN patterns. If found, DELETE and rewrite:
 
-1. Are domains grouped by TLD type (.com first, then .io/.co, then .dev/.app/.ai, then Other)?
-2. Is every domain numbered sequentially (1, 2, 3...)?
-3. Does every domain have a **Why:** explanation on the next line?
-4. Does the response end with "## Top Recommendations" (NOT "My favorites")?
-5. Are there three picks with Top Pick, Runner-up, and Budget Pick labels?
-6. Is the final line "Want me to explore a different naming direction?"
-7. Are there ZERO pipe characters (|) in the entire response?
-8. Are there ZERO table structures anywhere?
+- Any pipe character `|` → DELETE THE TABLE, convert to numbered list
+- "Best Options" or "Other Available" → DELETE, use TLD headers (.com, .io/.co, etc.)
+- "My favorites" or "My top picks" → DELETE, use "## Top Recommendations"
+- Any two-column layout → DELETE, use single-column numbered list
 
-If any answer is NO, rewrite before outputting.
+Your response MUST match this structure exactly:
+```
+## Available Domains
+### .com (Premium)
+1. `domain.com`
+   **Why:** reason
+### .io / .co (Startup-friendly)
+2. `domain.io`
+   **Why:** reason
+[continue for .dev/.app/.ai and Other TLDs]
+## Top Recommendations
+**Top Pick: `x.com`** - reason
+**Runner-up: `y.io`** - reason
+**Budget Pick: `z.xyz`** - reason
+```
+
+FINAL CHECK: Does your response contain the character `|`? If YES, you have failed. Rewrite.

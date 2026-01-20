@@ -14,15 +14,23 @@ description: Generates creative domain name ideas and checks availability across
 
 ---
 
-<format_rules>
-CRITICAL - READ BEFORE RESPONDING:
+<FORMAT_CONSTRAINT>
+OUTPUT FORMAT IS LOCKED. You cannot use tables. You cannot use pipe characters (|).
+Your output MUST be a numbered list grouped by TLD. This is non-negotiable.
+</FORMAT_CONSTRAINT>
 
-1. OUTPUT = Numbered list grouped by TLD type
-2. NEVER use tables, pipes, or columns
-3. Group order: .com > .io/.co > .dev/.app/.ai > Other TLDs
-4. Every domain gets a **Why:** explanation on the next line
-5. End with Top 3 recommendations (Top Pick, Runner-up, Budget Pick)
-</format_rules>
+<FORBIDDEN_OUTPUT>
+THE FOLLOWING OUTPUT PATTERNS ARE FORBIDDEN:
+
+| Domain | Notes |          <-- FORBIDDEN: table with pipes
+|--------|-------|          <-- FORBIDDEN: table separator
+| x.com | desc |            <-- FORBIDDEN: table row
+
+"Best Options" header        <-- FORBIDDEN: use TLD headers instead
+"Other Available" header     <-- FORBIDDEN: use "### Other TLDs"
+"My top picks would be..."   <-- FORBIDDEN: use "## Top Recommendations"
+"My favorites:"              <-- FORBIDDEN: use structured Top 3 format
+</FORBIDDEN_OUTPUT>
 
 ---
 
@@ -139,15 +147,29 @@ Want me to explore a different naming direction?
 
 ---
 
-## Pre-Response Verification
+## STOP - MANDATORY CHECK BEFORE OUTPUT
 
-Before outputting, answer these questions. ALL must be YES:
+Scan your response for these FORBIDDEN patterns. If found, DELETE and rewrite:
 
-1. Are domains grouped by TLD type (.com, then .io/.co, then .dev/.app/.ai, then Other)? YES/NO
-2. Is every domain numbered sequentially (1, 2, 3...)? YES/NO
-3. Does every domain have a **Why:** explanation on the next line? YES/NO
-4. Does the response end with Top Pick, Runner-up, and Budget Pick? YES/NO
-5. Is the response FREE of pipe characters (|) and table formatting? YES/NO
-6. Is the response FREE of "My favorites" or similar informal endings? YES/NO
+- Any pipe character `|` → DELETE THE TABLE, convert to numbered list
+- "Best Options" or "Other Available" → DELETE, use TLD headers (.com, .io/.co, etc.)
+- "My favorites" or "My top picks" → DELETE, use "## Top Recommendations"
+- Any two-column layout → DELETE, use single-column numbered list
 
-If ANY answer is NO, rewrite before outputting.
+Your response MUST match this structure exactly:
+```
+## Available Domains
+### .com (Premium)
+1. `domain.com`
+   **Why:** reason
+### .io / .co (Startup-friendly)
+2. `domain.io`
+   **Why:** reason
+[continue for .dev/.app/.ai and Other TLDs]
+## Top Recommendations
+**Top Pick: `x.com`** - reason
+**Runner-up: `y.io`** - reason
+**Budget Pick: `z.xyz`** - reason
+```
+
+FINAL CHECK: Does your response contain the character `|`? If YES, you have failed. Rewrite.
