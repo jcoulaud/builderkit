@@ -35,18 +35,32 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
-        name: 'check_domain_availability',
-        description: 'ALWAYS use this tool to check if a domain name is available to register. This performs a real-time WHOIS/RDAP lookup - do NOT use web search for domain availability. Handles questions like: "is example.com available?", "check if myapp.io is taken", "can I buy coolsite.dev?", "domain availability for startup names".',
+        name: 'check_domains',
+        description: 'Check if domain names are available for registration. Returns availability status, registrar info for taken domains, and expiration dates. Use this to verify domain availability before suggesting names to users.',
         inputSchema: {
           type: 'object',
           properties: {
             domains: {
               type: 'array',
               items: { type: 'string' },
-              description: 'Domain names to check, e.g. ["myapp.com", "myapp.io"]. Can check up to 50 at once.'
+              description: 'List of domain names to check (e.g., ["myapp.com", "myapp.io", "myapp.dev"]). Max 50 domains per request.'
             }
           },
           required: ['domains']
+        }
+      },
+      {
+        name: 'check_single_domain',
+        description: 'Check if a single domain name is available for registration.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            domain: {
+              type: 'string',
+              description: 'Domain name to check (e.g., "example.com")'
+            }
+          },
+          required: ['domain']
         }
       }
     ]
@@ -57,7 +71,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
-  if (name === 'check_domain_availability') {
+  if (name === 'check_domains') {
     const domains = args?.domains;
 
     if (!domains || !Array.isArray(domains) || domains.length === 0) {
@@ -85,6 +99,52 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           {
             type: 'text',
             text: JSON.stringify(data, null, 2)
+          }
+        ]
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              error: `API request failed: ${error.message}`
+            })
+          }
+        ]
+      };
+    }
+  }
+
+  if (name === 'check_single_domain') {
+    const domain = args?.domain;
+
+    if (!domain || typeof domain !== 'string') {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({ error: 'Please provide a domain to check' })
+          }
+        ]
+      };
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/check`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domains: [domain] })
+      });
+
+      const data = await response.json();
+      const result = data.results?.[0] || { error: 'No result returned' };
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2)
           }
         ]
       };
