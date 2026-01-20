@@ -5,7 +5,75 @@ description: Generates creative domain name ideas and checks availability across
 
 # Domain Name Brainstormer
 
-Help users find the perfect domain name by generating creative options and checking what's actually available to register.
+## ⛔ STOP - READ BEFORE DOING ANYTHING
+
+**TABLES ARE FORBIDDEN. DO NOT USE TABLES.**
+
+You MUST NOT use markdown tables (`| Column |`) in your response. This is non-negotiable.
+
+---
+
+## Output Format (MANDATORY)
+
+Your response MUST follow this EXACT structure:
+
+**Section 1: Available Domains (grouped by TLD)**
+
+## ✓ Available Domains
+
+### .com (Premium)
+
+1. ✓ `domain.com`
+   **Why:** Reason
+
+2. ✓ `another.com`
+   **Why:** Reason
+
+### .io / .co (Startup-friendly)
+
+3. ✓ `domain.io`
+   **Why:** Reason
+
+### .dev / .app / .ai (Tech-specific)
+
+4. ✓ `domain.dev`
+   **Why:** Reason
+
+### Other TLDs
+
+5. ✓ `domain.xyz`
+   **Why:** Reason
+
+**Section 2: Top Recommendations**
+
+## 🏆 Top Recommendations
+
+🏆 **Top Pick: `best.io`**
+- Reason 1
+- Reason 2
+
+🥈 **Runner-up: `second.com`**
+- Reason 1
+- Reason 2
+
+🥉 **Budget Pick: `third.xyz`**
+- Reason 1
+- Reason 2
+
+**Section 3: Closing**
+
+💡 Want me to explore a different naming direction?
+
+---
+
+## Forbidden
+
+- ❌ NO TABLES (never use `| Domain | Concept |` format)
+- ❌ NO grouping by theme/concept
+- ❌ NO bullet lists without numbers
+- ❌ NO skipping the 🏆🥈🥉 recommendations
+
+---
 
 ## When to Activate
 
@@ -13,137 +81,42 @@ Help users find the perfect domain name by generating creative options and check
 - User is brainstorming startup/project names
 - User asks "is X.com available?"
 - User mentions wanting to register a domain
-- User shares domain ideas they're considering
 
 ---
 
-## CRITICAL RULES
+## Rules
 
-1. **USE MCP TOOL ONLY** - Use `check_domains` MCP tool. NEVER use bash, whois, dig, or any CLI fallback
-2. **FIND 10+ AVAILABLE** - Keep checking until you find at least 10 available domains
-3. **SHOW ONLY 10-12** - Display only the best 10-12 domains in your response, curated across TLD categories
-4. **BATCH CHECKING** - Check 15-20 domains per call. If fewer than 10 available, generate more
-5. **MAX 3 ROUNDS** - Stop after 3 rounds even if you haven't found 10
+1. **USE MCP TOOL ONLY** - Use `check_domains` MCP tool. NEVER use bash, whois, dig
+2. **FIND 10+ AVAILABLE** - Keep checking until you find at least 10
+3. **SHOW ONLY 10-12** - Curate the best 10-12 in your response
+4. **MAX 3 ROUNDS** - Stop after 3 rounds of checking
 
-⚠️ If `check_domains` is not available, STOP and tell the user to restart Claude Code.
+⚠️ If `check_domains` is unavailable, tell user to restart Claude Code.
 
 ---
 
 ## Workflow
 
 ### Step 1: Understand the Project
+- What they're building
+- Target audience
+- Desired vibe
 
-Identify:
-- What they're building (SaaS, app, agency, etc.)
-- Target audience (developers, consumers, enterprises)
-- Desired vibe (professional, playful, technical, friendly)
-
-### Step 2: Generate Names (silently)
-
-Create 15-20 domain ideas using these techniques:
-- **Compound words** — DropBox, SnapChat, YouTube
-- **Verb + noun** — SendGrid, PushOver, MixPanel
-- **Truncations** — Tumblr, Flickr, Scribd
-- **Portmanteaus** — Instagram, Pinterest
-- **Made-up words** — Spotify, Hulu, Etsy
-- **Misspellings** — Lyft, Fiverr, Reddit
-
-Good domains are: short (<12 chars), memorable, pronounceable, no hyphens, brandable.
+### Step 2: Generate 15-20 Names (silently)
+Techniques: compound words, verb+noun, truncations, portmanteaus, made-up words, misspellings.
+Good domains: short (<12 chars), memorable, pronounceable, no hyphens.
 
 ### Step 3: Check Availability
+Call `check_domains` MCP tool with your list.
 
-Call `check_domains` MCP tool:
-```json
-{
-  "domains": ["name.com", "name.io", "name.co", "other.dev", ...]
-}
-```
-
-**TLD priority:**
-1. Always try .com first (universal trust)
-2. .io, .co (startup standards)
-3. .ai (for AI projects), .dev (dev tools), .app (apps)
-4. .xyz, .net, .me, .one (alternatives)
-
-**Skip these** (spammy): .online, .site, .website, .biz, .info, .top, .click
+TLD priority: .com > .io/.co > .ai/.dev/.app > .xyz/.net/.me
+Skip: .online, .site, .website, .biz, .info
 
 ### Step 4: Iterate if Needed
+If <10 available, generate more names and check again. Max 3 rounds.
 
-If fewer than 10 available:
-1. Generate 10-15 NEW name ideas
-2. Call `check_domains` again
-3. Max 3 rounds total
+### Step 5: Format Response
+**REMEMBER: NO TABLES. Use the numbered list format from above.**
 
----
-
-## ⛔ OUTPUT FORMAT - READ THIS LAST BEFORE RESPONDING
-
-**You MUST format your response EXACTLY as shown below. This is not optional.**
-
-### ❌ FORBIDDEN - Your response will be rejected if you use:
-
-- Tables of any kind (`| Domain | Status |` etc.)
-- Grouping by theme/concept ("Nature Theme:", "Tech Theme:", etc.)
-- Bullet lists without numbers
-- Missing the Top 3 Recommendations section
-
-### ✅ REQUIRED - Format your response EXACTLY like this:
-
-## ✓ Available Domains
-
-### .com (Premium)
-
-1. ✓ `firstdomain.com`
-   **Why:** One sentence explaining why this domain works
-
-2. ✓ `seconddomain.com`
-   **Why:** One sentence explaining why this domain works
-
-### .io / .co (Startup-friendly)
-
-3. ✓ `example.io`
-   **Why:** One sentence explaining why this domain works
-
-4. ✓ `another.co`
-   **Why:** One sentence explaining why this domain works
-
-### .dev / .app / .ai (Tech-specific)
-
-5. ✓ `example.dev`
-   **Why:** One sentence explaining why this domain works
-
-### Other TLDs
-
-6. ✓ `example.xyz`
-   **Why:** One sentence explaining why this domain works
-
----
-
-## 🏆 Top Recommendations
-
-🏆 **Top Pick: `best.io`**
-- First reason this is the top pick
-- Second reason
-
-🥈 **Runner-up: `second.com`**
-- First reason
-- Second reason
-
-🥉 **Budget Pick: `third.xyz`**
-- Only ~$10/year
-- Other benefit
-
----
-
-💡 Want me to explore a different naming direction?
-
-### FINAL CHECKLIST - Verify before responding:
-
-- [ ] Showing only 10-12 best domains (not all available ones)
-- [ ] Domains grouped by TLD type (.com, .io/.co, .dev/.app/.ai, Other)
-- [ ] Each domain numbered sequentially with `✓` prefix
-- [ ] Each domain has a `**Why:**` line underneath
-- [ ] Response includes 🏆 Top Recommendations section with Top Pick, Runner-up, Budget Pick
-- [ ] Response ends with 💡 prompt
-- [ ] NO TABLES anywhere in response
-- [ ] NO grouping by theme or concept
+Group by TLD type. Number each domain with ✓. Include **Why:** for each.
+End with 🏆🥈🥉 Top 3 recommendations.
