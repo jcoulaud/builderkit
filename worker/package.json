@@ -1,19 +1,22 @@
 {
   "name": "domain-finder-worker",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "cf-typegen": "wrangler types"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240117.0",
     "typescript": "^5.3.3",
-    "wrangler": "^3.24.0"
+    "wrangler": "^4.56.0"
   },
   "dependencies": {
-    "tldts": "^7.0.19"
+    "agents": "^0.3.1",
+    "tldts": "^7.0.19",
+    "zod": "^4.2.1"
   }
 }
