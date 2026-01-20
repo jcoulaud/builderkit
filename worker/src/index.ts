@@ -77,7 +77,11 @@ const DOH_URL = 'https://cloudflare-dns.com/dns-query';
 // Request timeout in milliseconds
 const FETCH_TIMEOUT = 10000;
 
-// Categorize errors for better reporting
+/**
+ * Categorize errors for clearer diagnostics.
+ * @param err - The caught error
+ * @returns Human-readable error description
+ */
 function categorizeError(err: unknown): string {
   if (err instanceof Error) {
     if (err.name === 'AbortError') {
@@ -91,7 +95,12 @@ function categorizeError(err: unknown): string {
   return 'Unknown error';
 }
 
-// Fetch with timeout using AbortController
+/**
+ * Fetch with automatic timeout.
+ * @param url - URL to fetch
+ * @param options - Fetch options
+ * @returns Response or throws on timeout
+ */
 async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
@@ -110,7 +119,12 @@ interface ValidationResult {
   sanitized?: string;
 }
 
-// Validate and sanitize a domain name using tldts
+/**
+ * Validate and sanitize a domain name using tldts.
+ * Handles URL stripping, IP detection, and TLD validation.
+ * @param input - Raw domain input (may include protocol/path)
+ * @returns Validation result with sanitized domain or error
+ */
 function validateDomain(input: string): ValidationResult {
   if (!input || typeof input !== 'string') {
     return { valid: false, error: 'Domain is required' };
@@ -142,7 +156,11 @@ function validateDomain(input: string): ValidationResult {
   return { valid: true, sanitized: parsed.domain };
 }
 
-// Parse the IANA bootstrap file to get TLD -> RDAP server mapping
+/**
+ * Parse IANA bootstrap file to build TLD to RDAP server mapping.
+ * @param bootstrap - IANA RDAP bootstrap response
+ * @returns Map of TLD to RDAP server URL
+ */
 function parseBootstrap(bootstrap: IanaBootstrap): Map<string, string> {
   const tldToServer = new Map<string, string>();
 
@@ -164,7 +182,12 @@ function getTld(domain: string): string {
   return parts[parts.length - 1];
 }
 
-// Check domain via DNS (Cloudflare DoH)
+/**
+ * Check domain availability via DNS (Cloudflare DoH).
+ * Queries NS and A records in parallel for faster results.
+ * @param domain - Domain to check
+ * @returns Domain availability result
+ */
 async function checkDomainDns(domain: string): Promise<DomainResult> {
   try {
     // Fetch NS and A records in parallel for faster lookups
@@ -224,7 +247,12 @@ async function checkDomainDns(domain: string): Promise<DomainResult> {
   }
 }
 
-// Check domain via WHOIS (using web-based WHOIS services)
+/**
+ * Check domain availability via WHOIS web scraping.
+ * Used as fallback when RDAP and DNS are inconclusive.
+ * @param domain - Domain to check
+ * @returns Domain availability result with registrar/expiry if found
+ */
 async function checkDomainWhois(domain: string): Promise<DomainResult> {
   try {
     // Use whois.com API (free for basic lookups)
@@ -305,7 +333,13 @@ async function checkDomainWhois(domain: string): Promise<DomainResult> {
   }
 }
 
-// Check single domain availability via RDAP
+/**
+ * Check domain availability via RDAP (preferred method).
+ * Returns null if no RDAP server exists for the TLD.
+ * @param domain - Domain to check
+ * @param tldToServer - TLD to RDAP server mapping
+ * @returns Domain result, or null if no RDAP server for TLD
+ */
 async function checkDomainRdap(
   domain: string,
   tldToServer: Map<string, string>
@@ -378,7 +412,12 @@ async function checkDomainRdap(
   }
 }
 
-// Main check function with fallback chain
+/**
+ * Check domain availability with fallback chain: RDAP → DNS → WHOIS.
+ * @param domain - Validated domain to check
+ * @param tldToServer - TLD to RDAP server mapping
+ * @returns Domain availability result
+ */
 async function checkDomain(
   domain: string,
   tldToServer: Map<string, string>
