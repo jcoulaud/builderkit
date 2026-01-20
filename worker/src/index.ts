@@ -77,6 +77,20 @@ const DOH_URL = 'https://cloudflare-dns.com/dns-query';
 // Request timeout in milliseconds
 const FETCH_TIMEOUT = 10000;
 
+// Categorize errors for better reporting
+function categorizeError(err: unknown): string {
+  if (err instanceof Error) {
+    if (err.name === 'AbortError') {
+      return 'Request timed out';
+    }
+    if (err.message.includes('fetch failed') || err.message.includes('network')) {
+      return 'Network error';
+    }
+    return err.message;
+  }
+  return 'Unknown error';
+}
+
 // Fetch with timeout using AbortController
 async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
   const controller = new AbortController();
@@ -205,7 +219,7 @@ async function checkDomainDns(domain: string): Promise<DomainResult> {
       domain,
       available: false,
       method: 'dns',
-      error: `DNS lookup failed: ${err instanceof Error ? err.message : 'Unknown error'}`
+      error: `DNS: ${categorizeError(err)}`
     };
   }
 }
@@ -286,7 +300,7 @@ async function checkDomainWhois(domain: string): Promise<DomainResult> {
       domain,
       available: false,
       method: 'whois',
-      error: `WHOIS lookup failed: ${err instanceof Error ? err.message : 'Unknown error'}`
+      error: `WHOIS: ${categorizeError(err)}`
     };
   }
 }
@@ -346,10 +360,21 @@ async function checkDomainRdap(
       return { domain, available: false, method: 'rdap', registrar, expires };
     }
 
-    return null; // RDAP failed, try fallback
+    // Non-404 error status - try fallback
+    return {
+      domain,
+      available: false,
+      method: 'rdap',
+      error: `RDAP: Server returned ${response.status}`
+    };
 
   } catch (err) {
-    return null; // RDAP error, try fallback
+    return {
+      domain,
+      available: false,
+      method: 'rdap',
+      error: `RDAP: ${categorizeError(err)}`
+    };
   }
 }
 
