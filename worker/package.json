@@ -15,7 +15,7 @@
     "wrangler": "^4.56.0"
   },
   "dependencies": {
-    "agents": "^0.3.1",
+    "agents": "^0.3.6",
     "tldts": "^7.0.19",
     "zod": "^4.2.1"
   }

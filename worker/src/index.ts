@@ -1,21 +1,16 @@
 /**
  * Domain Finder MCP Server - Cloudflare Worker
  *
- * Native MCP server that checks domain availability using:
+ * Stateless MCP server that checks domain availability using:
  * 1. RDAP (primary) - official registry protocol
  * 2. DNS fallback - for TLDs without RDAP
  * 3. WHOIS fallback - additional verification
  */
 
-import { McpAgent } from 'agents/mcp';
+import { createMcpHandler } from 'agents/mcp';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { parse } from 'tldts';
 import { z } from 'zod';
-
-// Environment bindings
-interface Env {
-  MCP_OBJECT: DurableObjectNamespace;
-}
 
 // Types
 interface DomainResult {
@@ -264,7 +259,6 @@ async function checkDomain(domain: string, tldToServer: Map<string, string>): Pr
   };
 }
 
-// Fetch bootstrap data (cached in memory for this request)
 async function getBootstrap(): Promise<Map<string, string>> {
   try {
     const response = await fetchWithTimeout(IANA_BOOTSTRAP_URL);
@@ -278,7 +272,6 @@ async function getBootstrap(): Promise<Map<string, string>> {
   return new Map();
 }
 
-// Check multiple domains
 async function checkDomainsInternal(domains: string[]): Promise<DomainResult[]> {
   const tldToServer = await getBootstrap();
 
@@ -297,113 +290,70 @@ async function checkDomainsInternal(domains: string[]): Promise<DomainResult[]> 
   );
 }
 
-// MCP Server implementation
-export class DomainFinderMCP extends McpAgent<Env> {
-  server = new McpServer({
-    name: 'domain-finder',
-    version: '2.0.0',
-  });
+// Create MCP Server
+const server = new McpServer({
+  name: 'domain-finder',
+  version: '2.0.0',
+});
 
-  async init() {
-    // Tool: Check multiple domains
-    this.server.tool(
-      'check_domains',
-      'Check availability of multiple domain names. Returns which domains are available or taken.',
-      {
-        domains: z.array(z.string()).describe('List of domain names to check (max 50)'),
-      },
-      async ({ domains }) => {
-        const results = await checkDomainsInternal(domains);
-        const available = results.filter((r) => r.available && !r.error).map((r) => r.domain);
-        const taken = results.filter((r) => !r.available && !r.error).map((r) => r.domain);
-        const errors = results.filter((r) => r.error).map((r) => ({ domain: r.domain, error: r.error }));
-
-        return {
-          content: [
-            {
-              type: 'text' as const,
-              text: JSON.stringify({ available, taken, errors }, null, 2),
-            },
-          ],
-        };
-      }
-    );
-
-    // Tool: Check single domain with details
-    this.server.tool(
-      'check_single_domain',
-      'Check if a single domain is available. Returns detailed information including registrar and expiration if taken.',
-      {
-        domain: z.string().describe('Domain name to check (e.g., "example.com")'),
-      },
-      async ({ domain }) => {
-        const validation = validateDomain(domain);
-        if (!validation.valid) {
-          return {
-            content: [
-              {
-                type: 'text' as const,
-                text: JSON.stringify({ domain, available: false, error: validation.error }, null, 2),
-              },
-            ],
-          };
-        }
-
-        const tldToServer = await getBootstrap();
-        const result = await checkDomain(validation.sanitized!, tldToServer);
-
-        return {
-          content: [
-            {
-              type: 'text' as const,
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-    );
-  }
-}
-
-// Export the MCP handler
-export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    const url = new URL(request.url);
-
-    // Health check endpoint
-    if (url.pathname === '/health') {
-      return new Response(JSON.stringify({ status: 'ok', version: '2.0.0' }), {
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    // MCP endpoint (using streamable HTTP transport)
-    if (url.pathname === '/mcp') {
-      return (DomainFinderMCP as any).serve('/mcp').fetch(request, env, ctx);
-    }
-
-    // CORS preflight
-    if (request.method === 'OPTIONS') {
-      return new Response(null, {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        },
-      });
-    }
-
-    // Default info
-    return new Response(
-      JSON.stringify({
-        name: 'Domain Finder MCP Server',
-        version: '2.0.0',
-        endpoints: {
-          '/mcp': 'MCP protocol endpoint (streamable HTTP)',
-          '/health': 'Health check',
-        },
-      }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+// Register tools
+server.tool(
+  'check_domains',
+  'Check availability of multiple domain names. Returns which domains are available or taken.',
+  {
+    domains: z.array(z.string()).describe('List of domain names to check (max 50)'),
   },
+  async ({ domains }) => {
+    const results = await checkDomainsInternal(domains);
+    const available = results.filter((r) => r.available && !r.error).map((r) => r.domain);
+    const taken = results.filter((r) => !r.available && !r.error).map((r) => r.domain);
+    const errors = results.filter((r) => r.error).map((r) => ({ domain: r.domain, error: r.error }));
+
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: JSON.stringify({ available, taken, errors }, null, 2),
+        },
+      ],
+    };
+  }
+);
+
+server.tool(
+  'check_single_domain',
+  'Check if a single domain is available. Returns detailed information including registrar and expiration if taken.',
+  {
+    domain: z.string().describe('Domain name to check (e.g., "example.com")'),
+  },
+  async ({ domain }) => {
+    const validation = validateDomain(domain);
+    if (!validation.valid) {
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify({ domain, available: false, error: validation.error }, null, 2),
+          },
+        ],
+      };
+    }
+
+    const tldToServer = await getBootstrap();
+    const result = await checkDomain(validation.sanitized!, tldToServer);
+
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: JSON.stringify(result, null, 2),
+        },
+      ],
+    };
+  }
+);
+
+// Export handler using createMcpHandler (recommended for stateless servers)
+export default {
+  fetch: createMcpHandler(server),
 };

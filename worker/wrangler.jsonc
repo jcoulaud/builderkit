@@ -5,21 +5,15 @@
   "compatibility_date": "2025-03-10",
   "compatibility_flags": ["nodejs_compat"],
 
-  // Durable Objects for MCP agent state
-  "durable_objects": {
-    "bindings": [
-      {
-        "name": "MCP_OBJECT",
-        "class_name": "DomainFinderMCP"
-      }
-    ]
-  },
-
-  // Migrations for Durable Objects
+  // Migration to delete old Durable Object
   "migrations": [
     {
       "tag": "v1",
       "new_sqlite_classes": ["DomainFinderMCP"]
+    },
+    {
+      "tag": "v2",
+      "deleted_classes": ["DomainFinderMCP"]
     }
   ],
 
