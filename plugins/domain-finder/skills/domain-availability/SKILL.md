@@ -14,32 +14,189 @@ description: Generates creative domain name ideas and checks availability across
 
 ---
 
-<FORMAT_CONSTRAINT>
-OUTPUT FORMAT IS LOCKED. You cannot use tables. You cannot use pipe characters (|).
-Your output MUST be a numbered list grouped by TLD. This is non-negotiable.
-</FORMAT_CONSTRAINT>
+## Output Format
 
-<FORBIDDEN_OUTPUT>
-THE FOLLOWING OUTPUT PATTERNS ARE FORBIDDEN:
+Your response MUST follow the exact format shown in these examples. Study them carefully.
 
-| Domain | Notes |          <-- FORBIDDEN: table with pipes
-|--------|-------|          <-- FORBIDDEN: table separator
-| x.com | desc |            <-- FORBIDDEN: table row
+<example>
+<user_request>a fitness tracking app for busy professionals</user_request>
+<response>
+## Available Domains
 
-"Best Options" header        <-- FORBIDDEN: use TLD headers instead
-"Other Available" header     <-- FORBIDDEN: use "### Other TLDs"
-"My top picks would be..."   <-- FORBIDDEN: use "## Top Recommendations"
-"My favorites:"              <-- FORBIDDEN: use structured Top 3 format
-</FORBIDDEN_OUTPUT>
+### .com (Premium)
+
+1. `fitpulse.com`
+   **Why:** Combines fitness with real-time tracking metaphor
+
+2. `quickrep.com`
+   **Why:** Short, implies fast workouts, gym terminology
+
+### .io / .co (Startup-friendly)
+
+3. `trainfast.io`
+   **Why:** Action-oriented, appeals to time-conscious users
+
+4. `gymflow.co`
+   **Why:** Smooth, suggests seamless workout experience
+
+### .dev / .app / .ai (Tech-specific)
+
+5. `fitnow.app`
+   **Why:** Urgency + perfect TLD for mobile app
+
+6. `repcount.ai`
+   **Why:** AI-powered tracking angle, gym terminology
+
+### Other TLDs
+
+7. `sweatlog.xyz`
+   **Why:** Descriptive, affordable registration
+
+---
+
+## Top Recommendations
+
+**Top Pick: `fitpulse.com`**
+- Premium .com builds trust
+- Memorable and brandable
+
+**Runner-up: `fitnow.app`**
+- Perfect TLD match for mobile app
+- Conveys immediacy
+
+**Budget Pick: `sweatlog.xyz`**
+- Low cost to register
+- Clear purpose in the name
+
+---
+
+Want me to explore a different naming direction?
+</response>
+</example>
+
+<example>
+<user_request>a collaborative note-taking tool for teams</user_request>
+<response>
+## Available Domains
+
+### .com (Premium)
+
+1. `notehive.com`
+   **Why:** Collaboration metaphor (hive), memorable
+
+2. `teamscribe.com`
+   **Why:** Clear purpose, professional tone
+
+### .io / .co (Startup-friendly)
+
+3. `syncnote.io`
+   **Why:** Implies real-time sync, tech-forward
+
+4. `collab.co`
+   **Why:** Ultra-short, obvious purpose
+
+### .dev / .app / .ai (Tech-specific)
+
+5. `notecraft.dev`
+   **Why:** Appeals to developers, suggests customization
+
+6. `teamnotes.app`
+   **Why:** Straightforward, app-store friendly
+
+### Other TLDs
+
+7. `scribehub.xyz`
+   **Why:** Community feel, budget-friendly
+
+---
+
+## Top Recommendations
+
+**Top Pick: `notehive.com`**
+- Strong brand potential
+- Easy to remember and spell
+
+**Runner-up: `syncnote.io`**
+- Modern tech feel
+- Communicates key feature
+
+**Budget Pick: `scribehub.xyz`**
+- Community-oriented name
+- Very affordable
+
+---
+
+Want me to explore a different naming direction?
+</response>
+</example>
+
+<example>
+<user_request>an AI recipe generator</user_request>
+<response>
+## Available Domains
+
+### .com (Premium)
+
+1. `chefbot.com`
+   **Why:** Friendly AI persona, easy to say
+
+2. `recipemind.com`
+   **Why:** Suggests intelligent recipe creation
+
+### .io / .co (Startup-friendly)
+
+3. `cookwise.io`
+   **Why:** Implies smart cooking assistance
+
+4. `mealgen.co`
+   **Why:** Short, clear generator purpose
+
+### .dev / .app / .ai (Tech-specific)
+
+5. `recipe.ai`
+   **Why:** Perfect TLD match, premium feel
+
+6. `cookai.app`
+   **Why:** Playful, mobile-first positioning
+
+### Other TLDs
+
+7. `dishcraft.xyz`
+   **Why:** Creative angle, affordable
+
+---
+
+## Top Recommendations
+
+**Top Pick: `recipe.ai`**
+- Ideal domain for AI product
+- Highly memorable
+
+**Runner-up: `chefbot.com`**
+- Friendly brand personality
+- Premium .com credibility
+
+**Budget Pick: `dishcraft.xyz`**
+- Creative and unique
+- Low registration cost
+
+---
+
+Want me to explore a different naming direction?
+</response>
+</example>
 
 ---
 
 ## Rules
 
-1. **USE MCP TOOL ONLY** - Use `check_domains` MCP tool. NEVER use bash, whois, dig
-2. **FIND 10+ AVAILABLE** - Keep checking until you find at least 10
-3. **SHOW ONLY 10-12** - Curate the best 10-12 in your response
-4. **MAX 3 ROUNDS** - Stop after 3 rounds of checking
+1. Use `check_domains` MCP tool only (never bash/whois/dig)
+2. Find at least 10 available domains
+3. Show only the best 10-12 in your response
+4. Maximum 3 rounds of checking
+5. Group by TLD: .com first, then .io/.co, then .dev/.app/.ai, then Other
+6. Every domain needs a **Why:** explanation
+7. End with Top Recommendations (Top Pick, Runner-up, Budget Pick)
 
 If `check_domains` is unavailable, tell the user to wait a moment and try again.
 
@@ -47,129 +204,8 @@ If `check_domains` is unavailable, tell the user to wait a moment and try again.
 
 ## Workflow
 
-### Step 1: Understand the Project
-- What they're building
-- Target audience
-- Desired vibe
-
-### Step 2: Generate 15-20 Names (silently)
-Techniques: compound words, verb+noun, truncations, portmanteaus, made-up words, misspellings.
-Good domains: short (<12 chars), memorable, pronounceable, no hyphens.
-
-### Step 3: Check Availability
-Call `check_domains` MCP tool with your list.
-
-TLD priority: .com > .io/.co > .ai/.dev/.app > .xyz/.net/.me
-Skip: .online, .site, .website, .biz, .info
-
-### Step 4: Iterate if Needed
-If <10 available, generate more names and check again. Max 3 rounds.
-
-### Step 5: Format Response
-Follow the CORRECT FORMAT below. No exceptions.
-
----
-
-## Format Examples
-
-<wrong_format>
-DO NOT OUTPUT THIS - Tables are forbidden:
-
-| Domain | TLD | Why |
-|--------|-----|-----|
-| spark.com | .com | Short and punchy |
-| blaze.io | .io | Tech-friendly |
-| nova.dev | .dev | Developer appeal |
-
-**My favorites:**
-- spark.com - Great brand potential
-- blaze.io - Memorable and modern
-
-This is WRONG because:
-- Uses table with pipe characters
-- Ends with "My favorites" instead of Top 3 format
-- Does not group by TLD type
-- Does not use numbered list
-</wrong_format>
-
-<correct_format>
-## Available Domains
-
-### .com (Premium)
-
-1. `spark.com`
-   **Why:** Short, punchy, universal brand appeal
-
-2. `nova.com`
-   **Why:** Memorable, conveys innovation
-
-### .io / .co (Startup-friendly)
-
-3. `blaze.io`
-   **Why:** Tech-friendly, energetic feel
-
-4. `pulse.co`
-   **Why:** Dynamic, suggests real-time activity
-
-### .dev / .app / .ai (Tech-specific)
-
-5. `stack.dev`
-   **Why:** Developer-focused, clear purpose
-
-6. `neural.ai`
-   **Why:** AI branding, technical credibility
-
-### Other TLDs
-
-7. `orbit.xyz`
-   **Why:** Modern, affordable alternative
-
----
-
-## Top Recommendations
-
-**Top Pick: `spark.com`**
-- Universal brand appeal
-- Easy to spell and remember
-
-**Runner-up: `blaze.io`**
-- Strong tech associations
-- Available at reasonable price
-
-**Budget Pick: `orbit.xyz`**
-- Modern feel
-- Low registration cost
-
----
-
-Want me to explore a different naming direction?
-</correct_format>
-
----
-
-## STOP - MANDATORY CHECK BEFORE OUTPUT
-
-Scan your response for these FORBIDDEN patterns. If found, DELETE and rewrite:
-
-- Any pipe character `|` → DELETE THE TABLE, convert to numbered list
-- "Best Options" or "Other Available" → DELETE, use TLD headers (.com, .io/.co, etc.)
-- "My favorites" or "My top picks" → DELETE, use "## Top Recommendations"
-- Any two-column layout → DELETE, use single-column numbered list
-
-Your response MUST match this structure exactly:
-```
-## Available Domains
-### .com (Premium)
-1. `domain.com`
-   **Why:** reason
-### .io / .co (Startup-friendly)
-2. `domain.io`
-   **Why:** reason
-[continue for .dev/.app/.ai and Other TLDs]
-## Top Recommendations
-**Top Pick: `x.com`** - reason
-**Runner-up: `y.io`** - reason
-**Budget Pick: `z.xyz`** - reason
-```
-
-FINAL CHECK: Does your response contain the character `|`? If YES, you have failed. Rewrite.
+1. Understand what they're building, target audience, desired vibe
+2. Generate 15-20 name ideas silently (compound words, verb+noun, truncations, portmanteaus)
+3. Call `check_domains` MCP tool with your list
+4. If <10 available, generate more and check again (max 3 rounds)
+5. Format response exactly like the examples above
