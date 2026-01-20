@@ -1,17 +1,27 @@
 # Domain Finder
 
+[![npm version](https://img.shields.io/npm/v/@jcoulaud/domain-finder-mcp.svg)](https://www.npmjs.com/package/@jcoulaud/domain-finder-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 Check domain availability directly in Claude. Works with both **Claude Desktop** and **Claude Code**.
 
 When brainstorming with Claude, it checks if domains are actually available before suggesting them. No more "oh that's taken" moments.
 
 ## Install
 
+### Claude Code
+
+```
+/plugin marketplace add jcoulaud/builderkit
+/plugin install domain-finder@builderkit
+```
+
 ### Claude Desktop
 
 Add this to your Claude Desktop config file:
 
-**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
@@ -25,13 +35,6 @@ Add this to your Claude Desktop config file:
 ```
 
 Restart Claude Desktop and you're done.
-
-### Claude Code
-
-```
-/plugin marketplace add jcoulaud/builderkit
-/plugin install domain-finder@builderkit
-```
 
 ## Usage
 
