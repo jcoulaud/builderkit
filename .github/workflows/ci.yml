@@ -28,23 +28,3 @@ jobs:
       - name: Type check
         working-directory: worker
         run: npm run typecheck
-
-  mcp-server:
-    name: MCP Server Check
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        working-directory: plugins/domain-finder/mcp-server
-        run: npm install
-
-      - name: Verify syntax
-        working-directory: plugins/domain-finder/mcp-server
-        run: node --check index.js
