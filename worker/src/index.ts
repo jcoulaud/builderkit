@@ -127,17 +127,18 @@ async function checkDomainDns(domain: string): Promise<DomainResult> {
     const nsData: DnsResponse | null = nsResponse.ok ? await nsResponse.json() : null;
     const aData: DnsResponse | null = aResponse.ok ? await aResponse.json() : null;
 
-    if (nsData) {
-      if (nsData.Status === 3) return { domain, available: true, method: 'dns' };
-      if (nsData.Status === 0 && nsData.Answer?.length) return { domain, available: false, method: 'dns' };
+    // DNS can only confirm a domain is TAKEN (has records).
+    // NXDOMAIN (status 3) means "no DNS records" NOT "domain is unregistered".
+    // Registered but parked/inactive domains often have no DNS records.
+    if (nsData?.Status === 0 && nsData.Answer?.length) {
+      return { domain, available: false, method: 'dns' };
+    }
+    if (aData?.Status === 0 && aData.Answer?.length) {
+      return { domain, available: false, method: 'dns' };
     }
 
-    if (aData) {
-      if (aData.Status === 3) return { domain, available: true, method: 'dns' };
-      if (aData.Status === 0) return { domain, available: false, method: 'dns' };
-    }
-
-    return { domain, available: false, method: 'dns', error: 'DNS lookup inconclusive' };
+    // Cannot determine availability from DNS alone - fall through to WHOIS
+    return { domain, available: false, method: 'dns', error: 'DNS cannot confirm availability' };
   } catch (err) {
     return { domain, available: false, method: 'dns', error: `DNS: ${categorizeError(err)}` };
   }
