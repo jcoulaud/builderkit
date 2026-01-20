@@ -1,54 +1,52 @@
-# Builderkit - Claude Code plugins for builders
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+# Builderkit
 
 Plugins for [Claude Code](https://claude.ai/code).
 
-Built things I needed, sharing them here. More plugins coming as I build more stuff.
+## Plugins
 
-## Contents
+### Domain Finder
 
-- [Domain Finder](#domain-finder) - Check domain availability while brainstorming with Claude
+Check domain availability while brainstorming with Claude. No more "oh that's taken" moments.
 
----
-
-## Domain Finder
-
-When brainstorming project ideas with Claude, I got tired of checking if domains were available manually. So I built this - Claude now checks availability automatically when suggesting domain names.
-
-### Install
-
+**Install:**
 ```
-/plugin marketplace add jcoulaud/builderkit
-/plugin install domain-finder@builderkit
+/install jcoulaud/builderkit/domain-finder
 ```
 
-### Use it
-
-Just ask Claude naturally:
-> "I'm building a habit tracker, what domains are available?"
-
-Or use slash commands:
+**Use it:**
 ```
-/domain-finder:brainstorm project management app for designers
+/domain-finder:brainstorm crypto project tracker
 /domain-finder:check mycoolapp.io
 ```
 
-[Full documentation →](./plugins/domain-finder)
+Or just ask naturally:
+> "I'm building a habit tracker, what domains are available?"
 
-### Output
+**Features:**
+- Finds 10+ available domains
+- Smart TLD selection (prioritizes .com, .io, .co, then category-specific)
+- Expert recommendations with reasoning
 
-| Domain | Status | Register |
-|--------|--------|----------|
-| designflow.io | ✓ Available | [Namecheap](https://namecheap.com) · [Porkbun](https://porkbun.com) |
-| projectcanvas.dev | ✓ Available | [Namecheap](https://namecheap.com) · [Porkbun](https://porkbun.com) |
-| designerpm.com | ✗ Taken | Expires 2026-05 |
+**Output:**
+```
+## ✓ Available Domains
+
+1. ✓ `projectpulse.com`
+   **Why:** Premium TLD, instant credibility
+
+2. ✓ `projectpulse.io`
+   **Why:** Tech-forward, startup-friendly
 
 ---
 
-## Ideas? Issues?
+🏆 **Top Pick: `projectpulse.com`**
+🥈 **Runner-up: `projectpulse.io`**
+🥉 **Budget Pick: `trackr.xyz`**
+```
 
-[Open an issue](https://github.com/jcoulaud/builderkit/issues) or submit a PR.
+[Full docs →](./plugins/domain-finder)
+
+---
 
 ## License
 

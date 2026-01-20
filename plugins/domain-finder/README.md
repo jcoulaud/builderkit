@@ -1,7 +1,5 @@
 # Domain Finder
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
 Check domain availability directly in Claude Code.
 
 When brainstorming with Claude, it checks if domains are actually available before suggesting them. No more "oh that's taken" moments.
@@ -9,8 +7,7 @@ When brainstorming with Claude, it checks if domains are actually available befo
 ## Install
 
 ```
-/plugin marketplace add jcoulaud/builderkit
-/plugin install domain-finder@builderkit
+/install jcoulaud/builderkit/domain-finder
 ```
 
 ## Usage
@@ -23,7 +20,7 @@ Mention domains in conversation and Claude will check availability:
 
 > "Is example.io available?"
 
-> "Brainstorm domain names for a fitness app"
+> "Brainstorm domain names for a crypto project"
 
 Claude will check availability automatically.
 
@@ -34,28 +31,56 @@ Claude will check availability automatically.
 /domain-finder:check mycoolapp.io
 ```
 
-### Output
+## Features
 
-**✓ Available**
+- **Finds 10+ available domains** — Keeps checking until it finds enough options
+- **Smart TLD selection** — Prioritizes .com, .io, .co, .app, then adds category-specific TLDs
+- **Grouped by category** — Results organized by TLD type
+- **Expert recommendations** — Top picks with reasoning
 
-| Domain |
-|--------|
-| fitbusy.io |
-| quickfit.app |
+## Output
 
-**✗ Taken**
+```
+## ✓ Available Domains
 
-| Domain | Registrar |
-|--------|-----------|
-| busyfit.com | GoDaddy |
+### Traditional (.com, .co, .net)
+
+1. ✓ `fitpulse.com`
+   **Why:** Premium TLD, instant credibility
+
+2. ✓ `fitpulse.co`
+   **Why:** Modern .com alternative
+
+### Tech (.io, .dev, .app)
+
+3. ✓ `fitpulse.io`
+   **Why:** Tech-forward, startup-friendly
+
+4. ✓ `quickfit.app`
+   **Why:** Perfect for mobile apps
+
+---
+
+## 🏆 Top Recommendations
+
+🏆 **Top Pick: `fitpulse.com`**
+- Premium .com domain
+- Short and brandable
+
+🥈 **Runner-up: `fitpulse.io`**
+- Tech-native feel
+
+🥉 **Budget Pick: `quickfit.xyz`**
+- Affordable renewal
+```
 
 ## Supported TLDs
 
-.com, .io, .dev, .app, .ai, .co, .net, .org, .xyz, and 1000+ more.
+1500+ TLDs supported including .com, .io, .dev, .app, .ai, .co, .xyz, .net, .org, .tech, .design, .store, .finance, .health, and many more.
 
 ## How it works
 
-Uses RDAP (official registry protocol) with DNS and WHOIS fallbacks. All lookups happen through a Cloudflare Worker - fast and reliable.
+Uses RDAP (official registry protocol) with DNS fallback. All lookups happen through a Cloudflare Worker — fast and reliable.
 
 ## License
 
