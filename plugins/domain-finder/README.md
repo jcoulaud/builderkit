@@ -1,13 +1,16 @@
 # Domain Finder
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 Check domain availability directly in Claude Code.
 
-When brainstorming with Claude, it checks if domains are actually available before suggesting them. No more "oh that's taken" moments.
+When brainstorming with Claude, it checks if domains are actually available before suggesting them. Saves the back-and-forth with registrars.
 
 ## Install
 
 ```
-/install jcoulaud/builderkit/domain-finder
+/plugin marketplace add jcoulaud/builderkit
+/plugin install domain-finder@builderkit
 ```
 
 ## Usage
@@ -22,8 +25,6 @@ Mention domains in conversation and Claude will check availability:
 
 > "Brainstorm domain names for a crypto project"
 
-Claude will check availability automatically.
-
 ### Slash commands
 
 ```
@@ -31,57 +32,20 @@ Claude will check availability automatically.
 /domain-finder:check mycoolapp.io
 ```
 
-## Features
+## What you get
 
-- **Finds 10+ available domains** — Keeps checking until it finds enough options
-- **Smart TLD selection** — Prioritizes .com, .io, .co, .app, then adds category-specific TLDs
-- **Grouped by category** — Results organized by TLD type
-- **Expert recommendations** — Top picks with reasoning
+- Generates creative domain ideas based on your project
+- Checks availability across 1000+ TLDs
+- Finds 10+ available options
+- Groups results by TLD type
+- Recommends top picks with reasoning
 
-## Output
-
-```
-## ✓ Available Domains
-
-### Traditional (.com, .co, .net)
-
-1. ✓ `fitpulse.com`
-   **Why:** Premium TLD, instant credibility
-
-2. ✓ `fitpulse.co`
-   **Why:** Modern .com alternative
-
-### Tech (.io, .dev, .app)
-
-3. ✓ `fitpulse.io`
-   **Why:** Tech-forward, startup-friendly
-
-4. ✓ `quickfit.app`
-   **Why:** Perfect for mobile apps
-
----
-
-## 🏆 Top Recommendations
-
-🏆 **Top Pick: `fitpulse.com`**
-- Premium .com domain
-- Short and brandable
-
-🥈 **Runner-up: `fitpulse.io`**
-- Tech-native feel
-
-🥉 **Budget Pick: `quickfit.xyz`**
-- Affordable renewal
-```
-
-## Supported TLDs
-
-1500+ TLDs supported including .com, .io, .dev, .app, .ai, .co, .xyz, .net, .org, .tech, .design, .store, .finance, .health, and many more.
+Prioritizes TLDs people trust (.com, .io, .co, .ai, .app, .dev). Skips the spammy ones.
 
 ## How it works
 
-Uses RDAP (official registry protocol) with DNS fallback. All lookups happen through a Cloudflare Worker — fast and reliable.
+Uses RDAP (official registry protocol) with DNS fallback. All lookups go through a Cloudflare Worker — fast and reliable. No API keys needed.
 
 ## License
 
-MIT - Do whatever you want with it.
+MIT

@@ -1,22 +1,38 @@
 # Domain Finder MCP Server
 
-Internal MCP server for the domain-finder plugin. Used by Claude Code.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+MCP server that checks domain name availability. Backend for the domain-finder plugin.
 
 ## Tools
 
-| Tool | Description |
-|------|-------------|
-| `check_domains` | Check multiple domains at once (up to 50) |
-| `check_single_domain` | Check a single domain |
+| Tool | Description | Limit |
+|------|-------------|-------|
+| `check_domains` | Check multiple domains at once | Up to 50 |
+| `check_single_domain` | Check a single domain | 1 |
 
-## Output
+### Response format
 
-Returns only available domains in markdown format. Taken domains are summarized as a count only.
+```json
+{
+  "domain": "example.com",
+  "available": false,
+  "status": "registered",
+  "registrar": "GoDaddy",
+  "expires": "2025-12-01"
+}
+```
 
-## How it works
+Status values: `available`, `registered`, `unknown`
 
-Uses RDAP (official registry protocol) with DNS fallback. All lookups happen through a Cloudflare Worker.
+## Architecture
+
+```
+Claude Code → MCP Server → Cloudflare Worker → RDAP/DNS
+```
+
+The MCP server is a thin wrapper. The heavy lifting (RDAP lookups, DNS fallback, caching) happens in the Cloudflare Worker.
 
 ## License
 
-MIT - Do whatever you want with it.
+MIT

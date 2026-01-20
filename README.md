@@ -1,48 +1,44 @@
-# Builderkit
+# Builderkit - Claude Code Plugins
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 Plugins for [Claude Code](https://claude.ai/code).
 
-## Plugins
+Built for my own projects. Sharing what's useful.
 
-### Domain Finder
+## Contents
 
-Check domain availability while brainstorming with Claude. No more "oh that's taken" moments.
-
-**Install:**
-```
-/install jcoulaud/builderkit/domain-finder
-```
-
-**Use it:**
-```
-/domain-finder:brainstorm crypto project tracker
-/domain-finder:check mycoolapp.io
-```
-
-Or just ask naturally:
-> "I'm building a habit tracker, what domains are available?"
-
-**Features:**
-- Finds 10+ available domains
-- Smart TLD selection (prioritizes .com, .io, .co, then category-specific)
-- Expert recommendations with reasoning
-
-**Output:**
-```
-## ✓ Available Domains
-
-1. ✓ `projectpulse.com`
-   **Why:** Premium TLD, instant credibility
-
-2. ✓ `projectpulse.io`
-   **Why:** Tech-forward, startup-friendly
+- [Domain Finder](#domain-finder) - Check domain availability while brainstorming
 
 ---
 
-🏆 **Top Pick: `projectpulse.com`**
-🥈 **Runner-up: `projectpulse.io`**
-🥉 **Budget Pick: `trackr.xyz`**
+## Domain Finder
+
+When brainstorming project ideas with Claude, I got tired of checking if domains were available manually. So I built this — Claude now checks availability automatically when suggesting domain names.
+
+### Install
+
 ```
+/plugin marketplace add jcoulaud/builderkit
+/plugin install domain-finder@builderkit
+```
+
+### Use it
+
+Just ask Claude naturally:
+
+> "I'm building a habit tracker, what domains are available?"
+
+Or use the slash commands:
+```
+/domain-finder:brainstorm crypto trading app
+/domain-finder:check mycoolapp.io
+```
+
+**What you get:**
+- 10+ available domain suggestions
+- Smart TLD selection (.com, .io, .ai, .app, .dev, etc.)
+- Recommendations with reasoning
 
 [Full docs →](./plugins/domain-finder)
 
@@ -50,4 +46,4 @@ Or just ask naturally:
 
 ## License
 
-MIT - Do whatever you want with it.
+MIT
