@@ -1,6 +1,6 @@
 {
   "name": "@jcoulaud/domain-finder-mcp",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "MCP server for checking domain name availability. Works with Claude Desktop and Claude Code.",
   "type": "module",
   "bin": {

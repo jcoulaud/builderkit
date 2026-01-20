@@ -36,7 +36,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: 'check_domains',
-        description: 'Check if domain names are available for registration. Returns availability status, registrar info for taken domains, and expiration dates. Use this to verify domain availability before suggesting names to users.',
+        description: 'Check if domain names are available for registration (WHOIS/RDAP lookup). Use this tool when a user asks "is [domain] available?", "check domain availability", or wants to find available domains for a project. Returns availability status and expiration dates for taken domains.',
         inputSchema: {
           type: 'object',
           properties: {
@@ -51,7 +51,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'check_single_domain',
-        description: 'Check if a single domain name is available for registration.',
+        description: 'Check if a single domain name is available for registration (WHOIS/RDAP lookup). Use when user asks about one specific domain like "is example.com available?" or "can I register mysite.io?"',
         inputSchema: {
           type: 'object',
           properties: {
