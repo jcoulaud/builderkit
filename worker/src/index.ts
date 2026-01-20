@@ -14,7 +14,6 @@ import { z } from 'zod';
 
 // Environment bindings
 interface Env {
-  RDAP_CACHE: KVNamespace;
   MCP_OBJECT: DurableObjectNamespace;
 }
 
@@ -379,13 +378,8 @@ export default {
     }
 
     // MCP endpoint (using streamable HTTP transport)
-    if (url.pathname === '/mcp' || url.pathname === '/sse') {
+    if (url.pathname === '/mcp') {
       return (DomainFinderMCP as any).serve('/mcp').fetch(request, env, ctx);
-    }
-
-    // Legacy REST API for backwards compatibility
-    if (url.pathname === '/check' && request.method === 'POST') {
-      return handleLegacyCheck(request, env);
     }
 
     // CORS preflight
@@ -405,43 +399,11 @@ export default {
         name: 'Domain Finder MCP Server',
         version: '2.0.0',
         endpoints: {
-          'POST /mcp': 'MCP protocol endpoint (streamable HTTP)',
-          '/sse': 'MCP protocol endpoint (SSE, deprecated)',
-          'POST /check': 'Legacy REST API (backwards compatible)',
-          'GET /health': 'Health check',
+          '/mcp': 'MCP protocol endpoint (streamable HTTP)',
+          '/health': 'Health check',
         },
       }),
       { headers: { 'Content-Type': 'application/json' } }
     );
   },
 };
-
-// Legacy REST API handler for backwards compatibility
-async function handleLegacyCheck(request: Request, env: Env): Promise<Response> {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
-
-  try {
-    const body = (await request.json()) as { domains?: string[] };
-    if (!body.domains || !Array.isArray(body.domains)) {
-      return new Response(JSON.stringify({ error: 'Missing or invalid "domains" array' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const results = await checkDomainsInternal(body.domains);
-
-    return new Response(JSON.stringify({ results, cached_bootstrap: false }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: 'An error occurred while processing your request' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-}

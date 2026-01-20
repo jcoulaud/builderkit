@@ -5,14 +5,6 @@
   "compatibility_date": "2025-03-10",
   "compatibility_flags": ["nodejs_compat"],
 
-  // KV namespace for caching IANA bootstrap file
-  "kv_namespaces": [
-    {
-      "binding": "RDAP_CACHE",
-      "id": "1107a48557d84bf2b9b745bbb924262e"
-    }
-  ],
-
   // Durable Objects for MCP agent state
   "durable_objects": {
     "bindings": [

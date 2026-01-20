@@ -1,11 +1,8 @@
 {
   "mcpServers": {
     "domain-finder": {
-      "command": "npx",
-      "args": [
-        "mcp-remote",
-        "https://domain-finder-api.j-coulaud.workers.dev/mcp"
-      ]
+      "type": "http",
+      "url": "https://domain-finder-api.j-coulaud.workers.dev/mcp"
     }
   }
 }
