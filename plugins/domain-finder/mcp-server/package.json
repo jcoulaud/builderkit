@@ -1,13 +1,35 @@
 {
-  "name": "domain-finder-mcp",
-  "version": "1.0.0",
+  "name": "@jcoulaud/domain-finder-mcp",
+  "version": "1.0.2",
+  "description": "MCP server for checking domain name availability. Works with Claude Desktop and Claude Code.",
   "type": "module",
   "bin": {
     "domain-finder-mcp": "./index.js"
   },
+  "files": [
+    "index.js",
+    "README.md"
+  ],
   "scripts": {
     "start": "node index.js"
   },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "claude-desktop",
+    "domain",
+    "whois",
+    "rdap"
+  ],
+  "author": "Julien Coulaud",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jcoulaud/builderkit.git",
+    "directory": "plugins/domain-finder/mcp-server"
+  },
+  "homepage": "https://github.com/jcoulaud/builderkit/tree/main/plugins/domain-finder",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
   }

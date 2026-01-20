@@ -1,6 +1,6 @@
-# Builderkit - Claude Code plugins for builders
+# Builderkit - Claude plugins for builders
 
-[Claude Code](https://claude.ai/code) plugins marketplace for builders.
+Plugins for [Claude Desktop](https://claude.ai/download) and [Claude Code](https://claude.ai/code).
 
 Built things I needed, sharing them here. More plugins coming as I build more stuff.
 
@@ -12,21 +12,38 @@ When brainstorming project ideas with Claude, I got tired of checking if domains
 
 ### Install
 
-**Step 1:** Add the marketplace
-```
-/plugin marketplace add jcoulaud/builderkit
+#### Claude Desktop
+
+Add to your config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+
+```json
+{
+  "mcpServers": {
+    "domain-finder": {
+      "command": "npx",
+      "args": ["-y", "@jcoulaud/domain-finder-mcp"]
+    }
+  }
+}
 ```
 
-**Step 2:** Install the plugin
+Then restart Claude Desktop.
+
+#### Claude Code
+
 ```
+/plugin marketplace add jcoulaud/builderkit
 /plugin install domain-finder@builderkit
 ```
 
-**Step 3:** Use it
+### Use it
+
+Just ask Claude naturally:
+> "I'm building a habit tracker, what domains are available?"
+
+Or use slash commands in Claude Code:
 ```
 /domain-finder:brainstorm project management app for designers
-```
-```
 /domain-finder:check mycoolapp.io
 ```
 
