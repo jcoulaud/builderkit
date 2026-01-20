@@ -6,55 +6,48 @@ description: Brainstorm domain name ideas and check availability
 
 Generate domain ideas for: "$ARGUMENTS"
 
+## CRITICAL RULES
+
+1. **MAX 15 DOMAINS** - Generate exactly 12-15 domain ideas total. No more.
+2. **USE MCP TOOL ONLY** - You MUST use the `check_domains` MCP tool. NEVER use bash, whois, or any fallback.
+3. **ONE CALL** - Check all domains in a single `check_domains` call.
+
 ## Instructions
 
 ### Step 1: Generate Ideas (silently)
 
-Think of 12-15 creative domain names based on the user's description. Consider:
+Think of 12-15 creative domain names. Consider:
 - Direct/descriptive names
-- Compound words (two words combined)
+- Compound words
 - Short invented words
-- Action verbs
-- Mix of TLDs: .com, .io, .dev, .app, .co, .ai
+- Mix of TLDs: .com, .io, .dev, .app, .co
 
-Do NOT output the ideas yet.
+Do NOT output the ideas yet. Do NOT exceed 15 domains.
 
-### Step 2: Check All Domains (single call)
+### Step 2: Check Domains
 
-Use the `check_domains` MCP tool to check ALL domains at once.
+Call the `check_domains` MCP tool with all domains:
 
-Pass all domain ideas as an array:
 ```json
 {
   "domains": ["idea1.com", "idea1.io", "idea2.dev", ...]
 }
 ```
 
+⚠️ If `check_domains` is not available, STOP and tell the user to restart Claude Code.
+
 ### Step 3: Output Results
 
+Display the tool output directly, then add:
+
 ```
-**✓ Available (X)**
-
-| Domain |
-|--------|
-| coolname.io |
-| awesome.dev |
-
-**✗ Taken (Y)**
-
-| Domain | Registrar |
-|--------|-----------|
-| taken.com | GoDaddy |
-
 **Top picks**
-- coolname.io
-- awesome.dev
+- bestdomain.io
+- another.dev
 ```
 
-## Rules
+## Output Format
 
-- ONE tool call with all domains
-- Available: single column table with domain names
+- Available: single column table
 - Taken: table with domain and registrar
-- Sort by TLD: .com, .io, .dev first
-- End with "Top picks" as bullet points (2-3 favorite available domains)
+- End with 2-3 "Top picks" from available domains
