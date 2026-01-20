@@ -13,7 +13,7 @@ Brainstorm creative domain names for: "$ARGUMENTS"
 3. **SHOW ONLY 10-12** - Curate the best 10-12 in your response
 4. **MAX 3 ROUNDS** - Stop after 3 rounds of checking
 
-⚠️ If `check_domains` is unavailable, tell user to restart Claude Code.
+⚠️ If `check_domains` is unavailable, tell user to wait ~10 seconds for the MCP server to connect, then try again.
 
 ---
 
