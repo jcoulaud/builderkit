@@ -77,6 +77,10 @@ const DOH_URL = 'https://cloudflare-dns.com/dns-query';
 // Request timeout in milliseconds
 const FETCH_TIMEOUT = 10000;
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW = 60; // seconds
+const RATE_LIMIT_MAX_REQUESTS = 10; // max requests per window per IP
+
 /**
  * Categorize errors for clearer diagnostics.
  * @param err - The caught error
@@ -93,6 +97,50 @@ function categorizeError(err: unknown): string {
     return err.message;
   }
   return 'Unknown error';
+}
+
+interface RateLimitResult {
+  allowed: boolean;
+  remaining: number;
+  resetAt: number;
+}
+
+/**
+ * Check rate limit for an IP address using KV storage.
+ * @param ip - Client IP address
+ * @param cache - KV namespace for rate limit storage
+ * @returns Whether the request is allowed
+ */
+async function checkRateLimit(ip: string, cache: KVNamespace): Promise<RateLimitResult> {
+  const key = `ratelimit:${ip}`;
+  const now = Math.floor(Date.now() / 1000);
+  const windowStart = now - (now % RATE_LIMIT_WINDOW);
+  const windowKey = `${key}:${windowStart}`;
+
+  try {
+    const current = await cache.get(windowKey);
+    const count = current ? parseInt(current, 10) : 0;
+
+    if (count >= RATE_LIMIT_MAX_REQUESTS) {
+      return {
+        allowed: false,
+        remaining: 0,
+        resetAt: windowStart + RATE_LIMIT_WINDOW
+      };
+    }
+
+    // Increment counter with TTL equal to window size
+    await cache.put(windowKey, String(count + 1), { expirationTtl: RATE_LIMIT_WINDOW });
+
+    return {
+      allowed: true,
+      remaining: RATE_LIMIT_MAX_REQUESTS - count - 1,
+      resetAt: windowStart + RATE_LIMIT_WINDOW
+    };
+  } catch {
+    // If rate limiting fails, allow the request (fail open)
+    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS, resetAt: now + RATE_LIMIT_WINDOW };
+  }
 }
 
 /**
@@ -472,6 +520,26 @@ export default {
 
     // Check domains endpoint
     if (url.pathname === '/check' && request.method === 'POST') {
+      // Rate limiting
+      const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const rateLimit = await checkRateLimit(clientIp, env.RDAP_CACHE);
+
+      if (!rateLimit.allowed) {
+        return new Response(
+          JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+          {
+            status: 429,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+              'X-RateLimit-Remaining': '0',
+              'X-RateLimit-Reset': String(rateLimit.resetAt),
+              'Retry-After': String(rateLimit.resetAt - Math.floor(Date.now() / 1000))
+            }
+          }
+        );
+      }
+
       try {
         const body = await request.json() as CheckDomainsRequest;
 
@@ -489,26 +557,40 @@ export default {
           validatedDomains.push({ domain, validation });
         }
 
-        // Get bootstrap file (cached)
-        let bootstrap: IanaBootstrap;
+        // Get bootstrap file (cached) with graceful fallback
+        let bootstrap: IanaBootstrap | null = null;
         let cachedBootstrap = false;
 
         const cached = await env.RDAP_CACHE?.get(BOOTSTRAP_CACHE_KEY);
         if (cached) {
-          bootstrap = JSON.parse(cached);
-          cachedBootstrap = true;
-        } else {
-          const bootstrapResponse = await fetchWithTimeout(IANA_BOOTSTRAP_URL);
-          bootstrap = await bootstrapResponse.json();
-
-          await env.RDAP_CACHE?.put(
-            BOOTSTRAP_CACHE_KEY,
-            JSON.stringify(bootstrap),
-            { expirationTtl: BOOTSTRAP_CACHE_TTL }
-          );
+          try {
+            bootstrap = JSON.parse(cached);
+            cachedBootstrap = true;
+          } catch {
+            console.error('Failed to parse cached bootstrap data');
+          }
         }
 
-        const tldToServer = parseBootstrap(bootstrap);
+        if (!bootstrap) {
+          try {
+            const bootstrapResponse = await fetchWithTimeout(IANA_BOOTSTRAP_URL);
+            if (bootstrapResponse.ok) {
+              bootstrap = await bootstrapResponse.json();
+
+              await env.RDAP_CACHE?.put(
+                BOOTSTRAP_CACHE_KEY,
+                JSON.stringify(bootstrap),
+                { expirationTtl: BOOTSTRAP_CACHE_TTL }
+              );
+            }
+          } catch (err) {
+            // Log error but continue - we'll fall back to DNS/WHOIS
+            console.error('Failed to fetch IANA bootstrap:', err instanceof Error ? err.message : err);
+          }
+        }
+
+        // If bootstrap unavailable, use empty map (RDAP will be skipped, fallback to DNS/WHOIS)
+        const tldToServer = bootstrap ? parseBootstrap(bootstrap) : new Map<string, string>();
 
         // Check all valid domains in parallel, return errors for invalid ones
         const results = await Promise.all(
@@ -534,8 +616,12 @@ export default {
         });
 
       } catch (err) {
+        // Log detailed error for debugging (visible in Cloudflare dashboard)
+        console.error('Check endpoint error:', err instanceof Error ? err.message : err);
+
+        // Return generic error to client (no internal details)
         return new Response(
-          JSON.stringify({ error: err instanceof Error ? err.message : 'Unknown error' }),
+          JSON.stringify({ error: 'An error occurred while processing your request' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
