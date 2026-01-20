@@ -5,7 +5,7 @@
     "email": ""
   },
   "metadata": {
-    "description": "Claude plugins for builders - works with Claude Desktop and Claude Code",
+    "description": "Claude Code plugins for builders",
     "version": "1.0.0",
     "pluginRoot": "./plugins"
   },
