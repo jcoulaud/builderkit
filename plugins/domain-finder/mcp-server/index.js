@@ -94,7 +94,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       const data = await response.json();
 
-      // Format results as a markdown table
+      // Format results - only show available domains
       const results = data.results || [];
       const available = results.filter(r => r.available);
       const taken = results.filter(r => !r.available && !r.error);
@@ -111,14 +111,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         output += '\n';
       }
 
+      // Summary of taken (count only, no table)
       if (taken.length > 0) {
-        output += `**✗ Taken (${taken.length})**\n\n`;
-        output += '| Domain | Registrar |\n|--------|----------|\n';
-        for (const d of taken) {
-          const registrar = d.registrar || 'Unknown';
-          output += `| ${d.domain} | ${registrar} |\n`;
-        }
-        output += '\n';
+        output += `*${taken.length} domains taken*\n\n`;
       }
 
       if (errors.length > 0) {
