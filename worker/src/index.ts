@@ -354,7 +354,38 @@ server.tool(
   }
 );
 
-// Export handler using createMcpHandler (recommended for stateless servers)
+// Environment type with rate limiter binding
+interface Env {
+  RATE_LIMITER: {
+    limit: (opts: { key: string }) => Promise<{ success: boolean }>;
+  };
+}
+
+// Create the base MCP handler
+const mcpHandler = createMcpHandler(server);
+
+// Export handler with rate limiting
 export default {
-  fetch: createMcpHandler(server),
+  async fetch(request: Request, env: Env): Promise<Response> {
+    // Get client IP for rate limiting
+    const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
+
+    // Check rate limit (20 requests per minute per IP)
+    const { success } = await env.RATE_LIMITER.limit({ key: clientIP });
+    if (!success) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded (20 requests/minute). Please try again later.' }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': '60',
+          },
+        }
+      );
+    }
+
+    // Process the request
+    return mcpHandler(request, env);
+  },
 };
