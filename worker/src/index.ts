@@ -366,7 +366,7 @@ const mcpHandler = createMcpHandler(server);
 
 // Export handler with rate limiting
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     // Get client IP for rate limiting
     const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
 
@@ -386,6 +386,6 @@ export default {
     }
 
     // Process the request
-    return mcpHandler(request, env);
+    return mcpHandler(request, env, ctx);
   },
 };
