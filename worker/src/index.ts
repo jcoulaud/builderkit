@@ -64,6 +64,7 @@ const FETCH_TIMEOUT = 10000;
 // Supplementary RDAP servers for ccTLDs missing from IANA bootstrap.
 // Only includes endpoints verified to return correct results.
 const SUPPLEMENTARY_RDAP: Record<string, string> = {
+  ar: 'https://rdap.nic.ar/',
   ch: 'https://rdap.nic.ch/',
   li: 'https://rdap.nic.ch/',
 };
