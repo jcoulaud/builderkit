@@ -2,9 +2,10 @@
  * Domain Finder MCP Server - Cloudflare Worker
  *
  * Stateless MCP server that checks domain availability using:
- * 1. RDAP (primary) - official registry protocol
+ * 1. RDAP (primary) - official registry protocol, supplemented with known ccTLD servers
  * 2. DNS fallback - for TLDs without RDAP
- * 3. WHOIS fallback - additional verification
+ * 3. who-dat API fallback - free WHOIS/RDAP aggregator with broad ccTLD coverage
+ * 4. whois.com fallback - last-resort HTML scraping
  */
 
 import { createMcpHandler } from 'agents/mcp';
@@ -18,7 +19,7 @@ interface DomainResult {
   available: boolean;
   registrar?: string;
   expires?: string;
-  method?: 'rdap' | 'dns' | 'whois';
+  method?: 'rdap' | 'dns' | 'whodat' | 'whois';
   error?: string;
 }
 
@@ -57,7 +58,53 @@ interface RdapEvent {
 // Constants
 const IANA_BOOTSTRAP_URL = 'https://data.iana.org/rdap/dns.json';
 const DOH_URL = 'https://cloudflare-dns.com/dns-query';
+const WHODAT_URL = 'https://who-dat.as93.net';
 const FETCH_TIMEOUT = 10000;
+
+// Supplementary RDAP servers for popular ccTLDs missing from IANA bootstrap.
+// Many registries run RDAP servers but haven't registered with IANA yet.
+const SUPPLEMENTARY_RDAP: Record<string, string> = {
+  co: 'https://rdap.nic.co/',
+  gg: 'https://rdap.channelislands.gg/',
+  je: 'https://rdap.channelislands.je/',
+  jp: 'https://rdap.jprs.jp/',
+  se: 'https://rdap.iis.se/',
+  dk: 'https://rdap.dk-hostmaster.dk/',
+  ch: 'https://rdap.nic.ch/',
+  li: 'https://rdap.nic.ch/',
+  at: 'https://rdap.nic.at/',
+  be: 'https://rdap.dnsbelgium.be/',
+  sk: 'https://rdap.sk-nic.sk/',
+  hu: 'https://rdap.nic.hu/',
+  ro: 'https://rdap.rotld.ro/',
+  es: 'https://rdap.nic.es/',
+  pt: 'https://rdap.dns.pt/',
+  gr: 'https://rdap.ics.forth.gr/',
+  tr: 'https://rdap.nic.tr/',
+  mx: 'https://rdap.mx/',
+  ru: 'https://rdap.tcinet.ru/',
+  ae: 'https://rdap.aeda.net.ae/',
+  nz: 'https://rdap.nzrs.net.nz/',
+  kr: 'https://rdap.kisa.or.kr/',
+  il: 'https://rdap.isoc.org.il/',
+  za: 'https://rdap.registry.net.za/',
+  ua: 'https://rdap.hostmaster.ua/',
+  cz: 'https://rdap.nic.cz/',
+  pl: 'https://rdap.dns.pl/',
+  fi: 'https://rdap.traficom.fi/',
+  no: 'https://rdap.norid.no/',
+  ie: 'https://rdap.weare.ie/',
+  is: 'https://rdap.isnic.is/',
+  cl: 'https://rdap.nic.cl/',
+  ee: 'https://rdap.tld.ee/',
+  lv: 'https://rdap.nic.lv/',
+  lt: 'https://rdap.domreg.lt/',
+  lu: 'https://rdap.dns.lu/',
+  si: 'https://rdap.register.si/',
+  hr: 'https://rdap.dns.hr/',
+  rs: 'https://rdap.rnids.rs/',
+  bg: 'https://rdap.register.bg/',
+};
 
 // Utility functions
 function categorizeError(err: unknown): string {
@@ -144,6 +191,34 @@ async function checkDomainDns(domain: string): Promise<DomainResult> {
   }
 }
 
+async function checkDomainWhoDat(domain: string): Promise<DomainResult> {
+  try {
+    const response = await fetchWithTimeout(`${WHODAT_URL}/${encodeURIComponent(domain)}`, {
+      headers: { Accept: 'application/json' },
+    });
+
+    if (response.status === 404) {
+      return { domain, available: true, method: 'whodat' };
+    }
+
+    if (response.ok) {
+      const data = await response.json() as {
+        domain?: { created_date?: string; expiration_date?: string };
+        registrar?: { name?: string; organization?: string };
+      };
+
+      const registrar = data.registrar?.name || data.registrar?.organization;
+      const expires = data.domain?.expiration_date?.split('T')[0];
+
+      return { domain, available: false, method: 'whodat', registrar, expires };
+    }
+
+    return { domain, available: false, method: 'whodat', error: `who-dat: Server returned ${response.status}` };
+  } catch (err) {
+    return { domain, available: false, method: 'whodat', error: `who-dat: ${categorizeError(err)}` };
+  }
+}
+
 async function checkDomainWhois(domain: string): Promise<DomainResult> {
   try {
     const whoisUrl = `https://www.whois.com/whois/${encodeURIComponent(domain)}`;
@@ -158,7 +233,10 @@ async function checkDomainWhois(domain: string): Promise<DomainResult> {
       const notFoundPatterns = [
         'no match for', 'not found', 'no data found', 'domain not found',
         'no entries found', 'is available for registration', 'status: free',
-        'domain status: no object found',
+        'domain status: no object found', 'no information available',
+        'is free', 'status: available', 'no such domain',
+        'nothing found', 'no match', 'not registered',
+        'available for registration', 'domain available',
       ];
 
       for (const pattern of notFoundPatterns) {
@@ -170,6 +248,8 @@ async function checkDomainWhois(domain: string): Promise<DomainResult> {
       const registeredPatterns = [
         'Creation Date:', 'Created Date:', 'Registration Date:',
         'Domain Name:', 'Registrar:', 'Registry Domain ID:',
+        'Registered on:', 'Created on:', 'paid-till:',
+        'Expiry Date:', 'Expiration Date:', 'Record created on',
       ];
 
       for (const pattern of registeredPatterns) {
@@ -244,33 +324,50 @@ async function checkDomainRdap(
 }
 
 async function checkDomain(domain: string, tldToServer: Map<string, string>): Promise<DomainResult> {
+  // 1. RDAP (primary) - official registry protocol
   const rdapResult = await checkDomainRdap(domain, tldToServer);
   if (rdapResult && !rdapResult.error) return rdapResult;
 
+  // 2. DNS - can only confirm taken (has records), not available
   const dnsResult = await checkDomainDns(domain);
   if (!dnsResult.error) return dnsResult;
 
+  // 3. who-dat API - free WHOIS/RDAP aggregator with broad ccTLD coverage
+  const whodatResult = await checkDomainWhoDat(domain);
+  if (!whodatResult.error) return whodatResult;
+
+  // 4. whois.com HTML scraping - last resort
   const whoisResult = await checkDomainWhois(domain);
   if (!whoisResult.error) return whoisResult;
 
   return {
     domain,
     available: false,
-    error: `Could not determine availability (no RDAP for .${getTld(domain)}, DNS and WHOIS inconclusive)`,
+    error: `Could not determine availability (RDAP, DNS, who-dat, and WHOIS all inconclusive for .${getTld(domain)})`,
   };
 }
 
 async function getBootstrap(): Promise<Map<string, string>> {
+  // Start with supplementary servers so IANA data takes priority when available
+  const tldToServer = new Map<string, string>();
+  for (const [tld, url] of Object.entries(SUPPLEMENTARY_RDAP)) {
+    tldToServer.set(tld, url);
+  }
+
   try {
     const response = await fetchWithTimeout(IANA_BOOTSTRAP_URL);
     if (response.ok) {
       const bootstrap: IanaBootstrap = await response.json();
-      return parseBootstrap(bootstrap);
+      const ianaMap = parseBootstrap(bootstrap);
+      // IANA entries override supplementary entries
+      for (const [tld, url] of ianaMap) {
+        tldToServer.set(tld, url);
+      }
     }
   } catch {
-    // Fall back to empty map
+    // Supplementary map still available as fallback
   }
-  return new Map();
+  return tldToServer;
 }
 
 async function checkDomainsInternal(domains: string[]): Promise<DomainResult[]> {
