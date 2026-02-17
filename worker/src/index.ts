@@ -4,7 +4,7 @@
  * Stateless MCP server that checks domain availability using:
  * 1. RDAP (primary) - official registry protocol, supplemented with known ccTLD servers
  * 2. DNS fallback - for TLDs without RDAP
- * 3. who-dat API fallback - free WHOIS/RDAP aggregator with broad ccTLD coverage
+ * 3. whois.vu API fallback - free JSON WHOIS lookup with broad ccTLD coverage
  * 4. whois.com fallback - last-resort HTML scraping
  */
 
@@ -19,7 +19,7 @@ interface DomainResult {
   available: boolean;
   registrar?: string;
   expires?: string;
-  method?: 'rdap' | 'dns' | 'whodat' | 'whois';
+  method?: 'rdap' | 'dns' | 'whoisvu' | 'whois';
   error?: string;
 }
 
@@ -58,52 +58,14 @@ interface RdapEvent {
 // Constants
 const IANA_BOOTSTRAP_URL = 'https://data.iana.org/rdap/dns.json';
 const DOH_URL = 'https://cloudflare-dns.com/dns-query';
-const WHODAT_URL = 'https://who-dat.as93.net';
+const WHOISVU_URL = 'https://api.whois.vu';
 const FETCH_TIMEOUT = 10000;
 
-// Supplementary RDAP servers for popular ccTLDs missing from IANA bootstrap.
-// Many registries run RDAP servers but haven't registered with IANA yet.
+// Supplementary RDAP servers for ccTLDs missing from IANA bootstrap.
+// Only includes endpoints verified to return correct results.
 const SUPPLEMENTARY_RDAP: Record<string, string> = {
-  co: 'https://rdap.nic.co/',
-  gg: 'https://rdap.channelislands.gg/',
-  je: 'https://rdap.channelislands.je/',
-  jp: 'https://rdap.jprs.jp/',
-  se: 'https://rdap.iis.se/',
-  dk: 'https://rdap.dk-hostmaster.dk/',
   ch: 'https://rdap.nic.ch/',
   li: 'https://rdap.nic.ch/',
-  at: 'https://rdap.nic.at/',
-  be: 'https://rdap.dnsbelgium.be/',
-  sk: 'https://rdap.sk-nic.sk/',
-  hu: 'https://rdap.nic.hu/',
-  ro: 'https://rdap.rotld.ro/',
-  es: 'https://rdap.nic.es/',
-  pt: 'https://rdap.dns.pt/',
-  gr: 'https://rdap.ics.forth.gr/',
-  tr: 'https://rdap.nic.tr/',
-  mx: 'https://rdap.mx/',
-  ru: 'https://rdap.tcinet.ru/',
-  ae: 'https://rdap.aeda.net.ae/',
-  nz: 'https://rdap.nzrs.net.nz/',
-  kr: 'https://rdap.kisa.or.kr/',
-  il: 'https://rdap.isoc.org.il/',
-  za: 'https://rdap.registry.net.za/',
-  ua: 'https://rdap.hostmaster.ua/',
-  cz: 'https://rdap.nic.cz/',
-  pl: 'https://rdap.dns.pl/',
-  fi: 'https://rdap.traficom.fi/',
-  no: 'https://rdap.norid.no/',
-  ie: 'https://rdap.weare.ie/',
-  is: 'https://rdap.isnic.is/',
-  cl: 'https://rdap.nic.cl/',
-  ee: 'https://rdap.tld.ee/',
-  lv: 'https://rdap.nic.lv/',
-  lt: 'https://rdap.domreg.lt/',
-  lu: 'https://rdap.dns.lu/',
-  si: 'https://rdap.register.si/',
-  hr: 'https://rdap.dns.hr/',
-  rs: 'https://rdap.rnids.rs/',
-  bg: 'https://rdap.register.bg/',
 };
 
 // Utility functions
@@ -191,31 +153,40 @@ async function checkDomainDns(domain: string): Promise<DomainResult> {
   }
 }
 
-async function checkDomainWhoDat(domain: string): Promise<DomainResult> {
+async function checkDomainWhoisVu(domain: string): Promise<DomainResult> {
   try {
-    const response = await fetchWithTimeout(`${WHODAT_URL}/${encodeURIComponent(domain)}`, {
-      headers: { Accept: 'application/json' },
-    });
+    const response = await fetchWithTimeout(
+      `${WHOISVU_URL}/?q=${encodeURIComponent(domain)}`,
+      { headers: { Accept: 'application/json' } }
+    );
 
-    if (response.status === 404) {
-      return { domain, available: true, method: 'whodat' };
+    if (!response.ok) {
+      return { domain, available: false, method: 'whoisvu', error: `whois.vu: Server returned ${response.status}` };
     }
 
-    if (response.ok) {
-      const data = await response.json() as {
-        domain?: { created_date?: string; expiration_date?: string };
-        registrar?: { name?: string; organization?: string };
-      };
+    const data = await response.json() as {
+      available?: string;
+      whois?: string;
+    };
 
-      const registrar = data.registrar?.name || data.registrar?.organization;
-      const expires = data.domain?.expiration_date?.split('T')[0];
-
-      return { domain, available: false, method: 'whodat', registrar, expires };
+    if (data.available === 'yes') {
+      return { domain, available: true, method: 'whoisvu' };
     }
 
-    return { domain, available: false, method: 'whodat', error: `who-dat: Server returned ${response.status}` };
+    if (data.available === 'no') {
+      let registrar: string | undefined;
+      let expires: string | undefined;
+      const whois = data.whois || '';
+      const registrarMatch = whois.match(/registrar:\s*(.+)/i);
+      if (registrarMatch) registrar = registrarMatch[1].trim();
+      const expiresMatch = whois.match(/expir(?:y|ation|es)(?:\s*date)?:\s*(\S+)/i);
+      if (expiresMatch) expires = expiresMatch[1].split('T')[0];
+      return { domain, available: false, method: 'whoisvu', registrar, expires };
+    }
+
+    return { domain, available: false, method: 'whoisvu', error: 'whois.vu: Lookup inconclusive' };
   } catch (err) {
-    return { domain, available: false, method: 'whodat', error: `who-dat: ${categorizeError(err)}` };
+    return { domain, available: false, method: 'whoisvu', error: `whois.vu: ${categorizeError(err)}` };
   }
 }
 
@@ -263,6 +234,16 @@ async function checkDomainWhois(domain: string): Promise<DomainResult> {
             registrar: registrarMatch?.[1].trim(),
             expires: expiresMatch?.[1],
           };
+        }
+      }
+
+      // For many ccTLDs, whois.com returns a valid page but with empty WHOIS data
+      // when the domain is unregistered. Detect this by checking <pre> blocks.
+      const preBlocks = html.match(/<pre[^>]*>([\s\S]*?)<\/pre>/gi);
+      if (preBlocks) {
+        const preText = preBlocks.map((b) => b.replace(/<[^>]+>/g, '').trim()).join('');
+        if (preText.length === 0) {
+          return { domain, available: true, method: 'whois' };
         }
       }
     }
@@ -332,9 +313,9 @@ async function checkDomain(domain: string, tldToServer: Map<string, string>): Pr
   const dnsResult = await checkDomainDns(domain);
   if (!dnsResult.error) return dnsResult;
 
-  // 3. who-dat API - free WHOIS/RDAP aggregator with broad ccTLD coverage
-  const whodatResult = await checkDomainWhoDat(domain);
-  if (!whodatResult.error) return whodatResult;
+  // 3. whois.vu API - free JSON WHOIS lookup with broad ccTLD coverage
+  const whoisVuResult = await checkDomainWhoisVu(domain);
+  if (!whoisVuResult.error) return whoisVuResult;
 
   // 4. whois.com HTML scraping - last resort
   const whoisResult = await checkDomainWhois(domain);
@@ -343,7 +324,7 @@ async function checkDomain(domain: string, tldToServer: Map<string, string>): Pr
   return {
     domain,
     available: false,
-    error: `Could not determine availability (RDAP, DNS, who-dat, and WHOIS all inconclusive for .${getTld(domain)})`,
+    error: `Could not determine availability (all methods inconclusive for .${getTld(domain)})`,
   };
 }
 
